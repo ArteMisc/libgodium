@@ -1,11 +1,15 @@
 # libgodium
 Pure Go implementation of cryptographic APIs found in libsodium
 
-# Import
+## Import
 
 ```bash
 go get go.artemisc.eu/godium
 ```
 
-# Godoc
+## Godoc
 [https://godoc.org/go.artemisc.eu/godium](https://godoc.org/go.artemisc.eu/godium "Godium godocs")
+
+## License
+Unless otherwise specified, code present in this library is licensed under the
+[Mozilla Public License Version v2.0](https://www.mozilla.org/en-US/MPL/2.0/ "MPL v2.0").
