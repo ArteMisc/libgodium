@@ -14,7 +14,7 @@ const (
 )
 
 // HSalsa20 implements the salsa20 hash function
-func HSalsa(dst, nonce, key, sigma []byte) (out []byte) {
+func HSalsa20(dst, nonce, key, sigma []byte) (out []byte) {
 	if len(sigma) == 0 {
 		sigma = salsa.Sigma[:]
 	} else if len(sigma) < ConstBytes {
