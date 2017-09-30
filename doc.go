@@ -1,4 +1,4 @@
-/**
+/*
 
 Package Godium provides implementations for the primitives present in the
 Libsodium library.
