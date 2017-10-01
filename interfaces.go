@@ -55,6 +55,24 @@ type Auth interface {
 	Verify(tag []byte) (matches bool)
 }
 
+// GenericHash
+type GenericHash interface {
+	hash.Hash
+	Wiper
+}
+
+// Hash
+type Hash interface {
+	hash.Hash
+}
+
+// OneTimeAuth
+type OneTimeAuth interface {
+	Auth
+
+	Init(key []byte)
+}
+
 // Random provides
 type Random interface {
 	UInt32() uint32

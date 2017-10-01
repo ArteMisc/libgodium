@@ -19,8 +19,6 @@ import (
 )
 
 const (
-	Primitive = "hmacsha512256"
-
 	HmacSha256_Bytes    = 32
 	HmacSha256_KeyBytes = 32
 
@@ -29,6 +27,10 @@ const (
 
 	HmacSha512256_Bytes    = 32
 	HmacSha512256_KeyBytes = 32
+
+	Primitive = "hmacsha512256"
+	Bytes     = HmacSha512256_Bytes
+	KeyBytes  = HmacSha512256_KeyBytes
 )
 
 // hmacImpl implements the godium.Auth API on top of golang's own hash and hmac
