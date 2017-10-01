@@ -1,3 +1,8 @@
+// Copyright 2017, Project ArteMisc
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
 package auth
 
 import (
@@ -10,6 +15,8 @@ import (
 )
 
 const (
+	Primitive = "hmacsha512256"
+
 	HmacSha256_Bytes    = 32
 	HmacSha256_KeyBytes = 32
 
@@ -25,6 +32,12 @@ const (
 type hmacImpl struct {
 	hash.Hash
 	key []byte
+}
+
+// New
+func New(key []byte) (auth godium.Auth) {
+	auth = NewHmacSha512256(key)
+	return
 }
 
 // NewHmacSha256
