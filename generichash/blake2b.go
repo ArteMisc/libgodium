@@ -7,4 +7,10 @@
 /*
 
  */
-package random // import "go.artemisc.eu/godium/random"
+package generichash // import "go.artemisc.eu/godium/generichash"
+
+import "hash"
+
+type blake2b struct {
+	hash.Hash
+}

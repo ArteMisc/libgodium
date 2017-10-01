@@ -6,5 +6,7 @@
 
 /*
 
+Package Core implements some of the core algorithms of libsodium.
+
  */
-package random // import "go.artemisc.eu/godium/random"
+package core // import "go.artemisc.eu/godium/core"
