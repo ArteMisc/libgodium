@@ -1,6 +1,6 @@
 # libgodium
 Pure Go implementation of cryptographic APIs found in libsodium. The
-implementations are compatible with libsodium 1.0.14.
+implementations are compatible with libsodium 1.0.15.
 
 ## Import
 

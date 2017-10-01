@@ -40,32 +40,9 @@ func (a *aes256gcm) Wipe() {
 	godium.Wipe(a.key)
 }
 
-func (a *aes256gcm) Overhead() (c int) {
-	c = Aes256Gcm_ABytes
-	return
-}
-
-func (a *aes256gcm) NonceSize() (c int) {
-	c = Aes256Gcm_NPubBytes
-	return
-}
-
-func (a *aes256gcm) KeyBytes() (c int) {
-	c = Aes256Gcm_KeyBytes
-	return
-}
-
-func (a *aes256gcm) NSecBytes() (c int) {
-	c = Aes256Gcm_NSecBytes
-	return
-}
-
-func (a *aes256gcm) NPubBytes() (c int) {
-	c = Aes256Gcm_NPubBytes
-	return
-}
-
-func (a *aes256gcm) ABytes() (c int) {
-	c = Aes256Gcm_ABytes
-	return
-}
+func (a *aes256gcm) Overhead() int  { return Aes256Gcm_ABytes }
+func (a *aes256gcm) NonceSize() int { return Aes256Gcm_NPubBytes }
+func (a *aes256gcm) KeyBytes() int  { return Aes256Gcm_KeyBytes }
+func (a *aes256gcm) NSecBytes() int { return Aes256Gcm_NSecBytes }
+func (a *aes256gcm) NPubBytes() int { return Aes256Gcm_NPubBytes }
+func (a *aes256gcm) ABytes() int    { return Aes256Gcm_ABytes }

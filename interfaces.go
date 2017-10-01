@@ -7,8 +7,8 @@ package godium
 
 import (
 	"crypto/cipher"
-	"io"
 	"hash"
+	"io"
 )
 
 // Wipe will override the contents of the buffer p with 0's.
@@ -24,6 +24,15 @@ type Wiper interface {
 	Wipe()
 }
 
+// Key
+type Key []byte
+
+// PrivateKey
+type PrivateKey []byte
+
+// PublicKey
+type PublicKey []byte
+
 // AEAD
 type AEAD interface {
 	cipher.AEAD
@@ -36,44 +45,86 @@ type AEAD interface {
 	//OpenDetached(dst, nonce, cipher, tag, ad []byte) (plain []byte, err error)
 
 	KeyBytes() (c int)
-
 	NSecBytes() (c int)
-
 	NPubBytes() (c int)
-
 	ABytes() (c int)
 }
 
 // Auth
 type Auth interface {
 	hash.Hash
-
 	Wiper
 
 	// Verify will check if the resulting Sum() of the Auth equals the provided
 	// authentication tag.
 	Verify(tag []byte) (matches bool)
+
+	Bytes() (c int)
+	KeyBytes() (c int)
+}
+
+// Box
+type Box interface {
+	Wiper
+
+	Seal(dst, nonce, plain []byte, remote PublicKey) (cipher []byte)
+	Open(dst, nonce, cipher []byte, remote PublicKey) (plain []byte, err error)
+
+	// TODO Detached interface
+	// SealDetached
+	// OpenDetached
+
+	BeforeNM() SecretBox
+
+	PublicKeyBytes() (c int)
+	SecretKeyBytes() (c int)
+	MacBytes() (c int)
+	NonceBytes() (c int)
+	SeedBytes() (c int)
+	BeforeNmBytes() (c int)
 }
 
 // GenericHash
 type GenericHash interface {
 	hash.Hash
 	Wiper
+
+	BytesMin() (c int)
+	BytesMax() (c int)
+	KeyBytesMin() (c int)
+	KeyBytesMax() (c int)
+	KeyBytes() (c int)
 }
 
 // Hash
 type Hash interface {
 	hash.Hash
+
+	Bytes() (c int)
 }
 
 // OneTimeAuth
 type OneTimeAuth interface {
 	Auth
 
+	// OneTimeAuth instances should only be used once. To use it again, it needs
+	// to be re-initialized with a new one-time key.
 	Init(key []byte)
 }
 
-// Random provides
+// SecretBox
+type SecretBox interface {
+	Wiper
+
+	Seal(dst, nonce, plain []byte) (cipher []byte)
+	Open(dst, nonce, cipher []byte) (plain []byte, err error)
+
+	KeyBytes() (c int)
+	MacBytes() (c int)
+	NonceBytes() (c int)
+}
+
+// Random provides an interface for CSPRNG functionality.
 type Random interface {
 	UInt32() uint32
 	UniformUInt32(upper uint32) uint32

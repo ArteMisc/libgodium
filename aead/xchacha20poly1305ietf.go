@@ -76,32 +76,9 @@ func (a *xchacha20poly1305ietf) Open(dst, nonce, cipher, ad []byte) (plain []byt
 	return
 }
 
-func (a *xchacha20poly1305ietf) Overhead() (c int) {
-	c = XChacha20Poly1305Ietf_ABytes
-	return
-}
-
-func (a *xchacha20poly1305ietf) NonceSize() (c int) {
-	c = XChacha20Poly1305Ietf_NPubBytes
-	return
-}
-
-func (a *xchacha20poly1305ietf) KeyBytes() (c int) {
-	c = XChacha20Poly1305Ietf_KeyBytes
-	return
-}
-
-func (a *xchacha20poly1305ietf) NSecBytes() (c int) {
-	c = XChacha20Poly1305Ietf_NSecBytes
-	return
-}
-
-func (a *xchacha20poly1305ietf) NPubBytes() (c int) {
-	c = XChacha20Poly1305Ietf_NPubBytes
-	return
-}
-
-func (a *xchacha20poly1305ietf) ABytes() (c int) {
-	c = XChacha20Poly1305Ietf_ABytes
-	return
-}
+func (a *xchacha20poly1305ietf) Overhead() int  { return XChacha20Poly1305Ietf_ABytes }
+func (a *xchacha20poly1305ietf) NonceSize() int { return XChacha20Poly1305Ietf_NPubBytes }
+func (a *xchacha20poly1305ietf) KeyBytes() int  { return XChacha20Poly1305Ietf_KeyBytes }
+func (a *xchacha20poly1305ietf) NSecBytes() int { return XChacha20Poly1305Ietf_NSecBytes }
+func (a *xchacha20poly1305ietf) NPubBytes() int { return XChacha20Poly1305Ietf_NPubBytes }
+func (a *xchacha20poly1305ietf) ABytes() int    { return XChacha20Poly1305Ietf_ABytes }

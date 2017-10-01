@@ -26,13 +26,13 @@ const (
 	Blake2b_SaltBytes     = 16
 	Blake2b_PersonalBytes = 16
 
-	Primitive     = "blake2b"
-	BytesMin      = Blake2b_BytesMin
-	BytesMax      = Blake2b_BytesMax
-	Bytes         = Blake2b_Bytes
-	KeyBytesMin   = Blake2b_KeyBytesMin
-	KeyBytesMax   = Blake2b_KeyBytesMax
-	KeyBytes      = Blake2b_KeyBytes
+	Primitive   = "blake2b"
+	BytesMin    = Blake2b_BytesMin
+	BytesMax    = Blake2b_BytesMax
+	Bytes       = Blake2b_Bytes
+	KeyBytesMin = Blake2b_KeyBytesMin
+	KeyBytesMax = Blake2b_KeyBytesMax
+	KeyBytes    = Blake2b_KeyBytes
 )
 
 type blake2bDigest struct {
@@ -89,21 +89,16 @@ func (b *blake2bDigest) Wipe() {
 	godium.Wipe(b.key)
 }
 
+func (b *blake2bDigest) BytesMin() int    { return Blake2b_BytesMin }
+func (b *blake2bDigest) BytesMax() int    { return Blake2b_BytesMax }
+func (b *blake2bDigest) Bytes() int       { return b.Size() }
+func (b *blake2bDigest) KeyBytesMin() int { return Blake2b_KeyBytesMin }
+func (b *blake2bDigest) KeyBytesMax() int { return Blake2b_KeyBytesMax }
+func (b *blake2bDigest) KeyBytes() int    { return len(b.key) }
+
 // Wipe
 func (b *blake2bXof) Wipe() {
 	godium.Wipe(b.key)
-}
-
-// Size
-func (b *blake2bXof) Size() (s int) {
-	s = b.outlen
-	return
-}
-
-// BlockSize
-func (b *blake2bXof) BlockSize() (s int) {
-	s = 128
-	return
 }
 
 // Sum
@@ -112,3 +107,12 @@ func (b *blake2bXof) Sum(dst []byte) (sum []byte) {
 	_, _ = b.XOF.Read(sum)
 	return
 }
+
+func (b *blake2bXof) Size() int        { return b.outlen }
+func (b *blake2bXof) BlockSize() int   { return 128 }
+func (b *blake2bXof) BytesMin() int    { return Blake2b_BytesMin }
+func (b *blake2bXof) BytesMax() int    { return Blake2b_BytesMax }
+func (b *blake2bXof) Bytes() int       { return b.outlen }
+func (b *blake2bXof) KeyBytesMin() int { return Blake2b_KeyBytesMin }
+func (b *blake2bXof) KeyBytesMax() int { return Blake2b_KeyBytesMax }
+func (b *blake2bXof) KeyBytes() int    { return len(b.key) }

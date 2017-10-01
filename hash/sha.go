@@ -14,6 +14,7 @@ import (
 	"crypto/sha512"
 
 	"go.artemisc.eu/godium"
+	"hash"
 )
 
 const (
@@ -25,6 +26,11 @@ const (
 	Bytes     = Sha512_Bytes
 )
 
+// shaImpl
+type shaImpl struct {
+	hash.Hash
+}
+
 // New
 func New() (h godium.Hash) {
 	h = NewSha512()
@@ -33,13 +39,17 @@ func New() (h godium.Hash) {
 
 // NewSha256
 func NewSha256() (h godium.Hash) {
-	h = sha256.New()
+	h = &shaImpl{
+		Hash: sha256.New(),
+	}
 	return
 }
 
 // NewSha256
 func NewSha512() (h godium.Hash) {
-	h = sha512.New()
+	h = &shaImpl{
+		Hash: sha512.New(),
+	}
 	return
 }
 
@@ -62,3 +72,5 @@ func SumSha512(dst, data []byte) (sum []byte) {
 	sum = append(dst, sha[:]...)
 	return
 }
+
+func (s *shaImpl) Bytes() int { return s.Hash.Size() }

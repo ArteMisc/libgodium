@@ -10,9 +10,10 @@
 package onetimeauth // import "go.artemisc.eu/godium/onetimeauth"
 
 import (
+	"crypto/hmac"
+
 	"github.com/Yawning/poly1305"
 	"go.artemisc.eu/godium"
-	"crypto/hmac"
 )
 
 const (
@@ -40,7 +41,7 @@ func NewPoly1305(key []byte) (a godium.OneTimeAuth) {
 	h, _ := poly1305.New(key)
 	a = &poly1305Impl{
 		Poly1305: h,
-		key: key,
+		key:      key,
 	}
 	return
 }
@@ -56,3 +57,6 @@ func (p *poly1305Impl) Verify(tag []byte) (valid bool) {
 	valid = hmac.Equal(p.Sum(nil), tag)
 	return
 }
+
+func (p *poly1305Impl) Bytes() int    { return Poly1305_Bytes }
+func (p *poly1305Impl) KeyBytes() int { return Poly1305_KeyBytes }

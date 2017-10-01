@@ -83,3 +83,6 @@ func (h *hmacImpl) Verify(tag []byte) (valid bool) {
 	valid = hmac.Equal(h.Sum(nil), tag)
 	return
 }
+
+func (h *hmacImpl) Bytes() int    { return h.Size() }
+func (h *hmacImpl) KeyBytes() int { return len(h.key) }
