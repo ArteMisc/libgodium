@@ -1,4 +1,4 @@
-package hsalsa
+package core
 
 import (
 	"bytes"

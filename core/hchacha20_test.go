@@ -1,4 +1,4 @@
-package hchacha
+package core
 
 import (
 	"testing"

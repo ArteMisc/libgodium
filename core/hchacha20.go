@@ -1,4 +1,4 @@
-package hchacha
+package core
 
 import (
 	"unsafe"
@@ -7,10 +7,10 @@ import (
 )
 
 const (
-	OutputBytes = 32
-	InputBytes  = 16
-	KeyBytes    = 32
-	ConstBytes  = 16
+	HChacha20_OutputBytes = 32
+	HChacha20_InputBytes  = 16
+	HChacha20_KeyBytes    = 32
+	HChacha20_ConstBytes  = 16
 )
 
 // HChacha20 implements the chacha20 hash function
@@ -22,15 +22,15 @@ func HChacha20(dst, nonce, key, sigma []byte) (out []byte) {
 		panic("HChacha20: using own sigma not yet supported")
 	}
 
-	if len(nonce) < InputBytes {
+	if len(nonce) < HChacha20_InputBytes {
 		panic("invalid nonce size")
 	}
 
-	out = append(dst, make([]byte, OutputBytes)...)
+	out = append(dst, make([]byte, HChacha20_OutputBytes)...)
 
 	chacha20.HChaCha(key,
-		(*[InputBytes]byte)(unsafe.Pointer(&nonce[0])),
-		(*[OutputBytes]byte)(unsafe.Pointer(&out[0])))
+		(*[HChacha20_InputBytes]byte)(unsafe.Pointer(&nonce[0])),
+		(*[HChacha20_OutputBytes]byte)(unsafe.Pointer(&out[0])))
 
 	return
 }

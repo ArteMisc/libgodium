@@ -3,6 +3,7 @@ package godium
 import (
 	"crypto/cipher"
 	"io"
+	"hash"
 )
 
 // Wipe will override the contents of the buffer p with 0's.
@@ -36,6 +37,17 @@ type AEAD interface {
 	NPubBytes() (c int)
 
 	ABytes() (c int)
+}
+
+// Auth
+type Auth interface {
+	hash.Hash
+
+	Wiper
+
+	// Verify will check if the resulting Sum() of the Auth equals the expected
+	// authentication tag.
+	Verify(expect []byte) (matches bool)
 }
 
 // Random provides
