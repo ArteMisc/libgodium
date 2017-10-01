@@ -45,9 +45,9 @@ type Auth interface {
 
 	Wiper
 
-	// Verify will check if the resulting Sum() of the Auth equals the expected
+	// Verify will check if the resulting Sum() of the Auth equals the provided
 	// authentication tag.
-	Verify(expect []byte) (matches bool)
+	Verify(tag []byte) (matches bool)
 }
 
 // Random provides

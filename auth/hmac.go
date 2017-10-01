@@ -60,7 +60,7 @@ func (h *hmacImpl) Wipe() {
 }
 
 // Verify
-func (h *hmacImpl) Verify(expect []byte) (matches bool) {
-	matches = hmac.Equal(h.Sum(nil), expect)
+func (h *hmacImpl) Verify(tag []byte) (valid bool) {
+	valid = hmac.Equal(h.Sum(nil), tag)
 	return
 }
