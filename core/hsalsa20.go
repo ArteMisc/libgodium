@@ -30,7 +30,7 @@ func HSalsa20(dst, nonce, key, sigma []byte) (out []byte) {
 		panic("invalid nonce size")
 	}
 
-	out = append(dst, make([]byte, HSalsa20_OutputBytes)...)
+	out = AllocDst(dst, HSalsa20_OutputBytes)
 
 	salsa.HSalsa20(
 		(*[HSalsa20_OutputBytes]byte)(unsafe.Pointer(&out[0])),

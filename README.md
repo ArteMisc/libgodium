@@ -38,6 +38,7 @@ This library is built upon existing cryptographic implementations.
 * Core
     * hchacha20
     * hsalsa20
+    * salsa20 (TODO: amd64 implementation)
 * Generic Hash
     * blake2b
 * Hash
@@ -55,19 +56,25 @@ This library is built upon existing cryptographic implementations.
 * Random bytes
     * sodium randombytes
 * Scalar Mult
-    * TODO curve25519
+    * curve25519
 * Secret Box
     * TODO xchacha20poly1305
     * TODO xsalsa20poly1305
 * Secret Stream
-    * TODO
+    * TODO xchacha20poly1305
 * Short Hash
     * TODO siphash24
     * TODO siphashx24
 * Signature
     * TODO ed25519 (EdDSA-25519)
 * Stream
-    * TODO
+    * chacha20
+    * chacha20 ietf
+    * xchacha20
+    * TODO salsa208
+    * TODO salsa2012
+    * salsa20
+    * xsalsa20
 * Misc/Util
     * TODO constant time hex encode/decode
     * TODO constant time base64 encode/decode

@@ -11,6 +11,7 @@ import (
 	"github.com/Yawning/chacha20"
 	"github.com/Yawning/poly1305"
 	"go.artemisc.eu/godium"
+	"go.artemisc.eu/godium/core"
 )
 
 const (
@@ -21,30 +22,48 @@ const (
 )
 
 type chacha20poly1305 struct {
+	*chacha20.Cipher
 	key []byte
 }
 
 // NewChacha20Poly1305
 func NewChacha20Poly1305(key []byte) (impl godium.AEAD) {
 	impl = &chacha20poly1305{
-		key: key,
+		Cipher: nil,
+		key:    key,
 	}
 	return
+}
+
+// initCipher
+func (a *chacha20poly1305) initCipher(key, nonce []byte) {
+	if a.Cipher == nil {
+		a.Cipher, _ = chacha20.NewCipher(key, nonce)
+		return
+	}
+
+	_ = a.Cipher.ReKey(key, nonce)
 }
 
 // Wipe
 func (a *chacha20poly1305) Wipe() {
 	godium.Wipe(a.key)
+	if a.Cipher != nil {
+		a.Cipher.Reset()
+	}
 }
 
 // Seal
 func (a *chacha20poly1305) Seal(dst, nonce, plain, ad []byte) (cipher []byte) {
-	block0 := make([]byte, 64)
+	block0 := make([]byte, chacha20.BlockSize)
 	slen := make([]byte, 8)
 
+	mlen := uint64(len(plain))
+	adlen := uint64(len(ad))
+
 	// get poly key
-	ciph, _ := chacha20.NewCipher(a.key, nonce)
-	ciph.KeyStream(block0)
+	a.initCipher(a.key, nonce)
+	a.Cipher.KeyStream(block0)
 
 	// create poly
 	poly, _ := poly1305.New(block0[:poly1305.KeySize])
@@ -52,24 +71,22 @@ func (a *chacha20poly1305) Seal(dst, nonce, plain, ad []byte) (cipher []byte) {
 
 	// update tag
 	_, _ = poly.Write(ad)
-	binary.LittleEndian.PutUint64(slen, uint64(len(ad)))
+	binary.LittleEndian.PutUint64(slen, adlen)
 	_, _ = poly.Write(slen)
 
 	// encrypt with xor
-	cipher = append(dst, plain...)
-	_ = ciph.Seek(1)
-	ciph.XORKeyStream(cipher, cipher)
+	cipher = core.AllocDst(dst, mlen+Chacha20Poly1305_ABytes)
+	a.Cipher.XORKeyStream(cipher[:mlen], plain)
 
 	// update tag
-	_, _ = poly.Write(cipher)
-	binary.LittleEndian.PutUint64(slen, uint64(len(cipher)))
+	_, _ = poly.Write(cipher[:mlen])
+	binary.LittleEndian.PutUint64(slen, mlen)
 	_, _ = poly.Write(slen)
 
 	// add tag
-	cipher = poly.Sum(cipher)
+	cipher = poly.Sum(cipher[mlen:mlen])
 
 	// clear state
-	ciph.Reset()
 	poly.Clear()
 
 	return

@@ -7,8 +7,19 @@ package godium
 
 import (
 	"crypto/cipher"
+	"errors"
 	"hash"
 	"io"
+)
+
+var (
+	// ErrForgedOrCorrupted is returned by decryption method that perform
+	// message authentication whenever the authentication check fails. When such
+	// a check fails, it indicates that the message is either forged, corrupted,
+	// or incorrectly encrypted. These could be indicators of protocol or
+	// implementation failures, but also be a sign of an active
+	// man-in-the-middle attack
+	ErrForgedOrCorrupted = errors.New("authentication tag is invalid, message is forged or corrupted")
 )
 
 // Wipe will override the contents of the buffer p with 0's.
@@ -121,6 +132,28 @@ type SecretBox interface {
 
 	KeyBytes() (c int)
 	MacBytes() (c int)
+	NonceBytes() (c int)
+}
+
+// Stream
+type Stream interface {
+	cipher.Stream
+	Wiper
+
+	// KeyStream generated len(dst) bytes of key from the stream
+	KeyStream(dst []byte)
+
+	// Seek sets the stream's internal counter. As this is usually followed
+	// directly by a call to KeyStream or XORKeyStream, it returns a reference
+	// to itself to enable chaining.
+	//
+	// example: stream.Seek(1).KeyStream(stream)
+	Seek(counter uint64) Stream
+
+	// ReKey will re-initialize the stream with the given key/nonce conbination.
+	ReKey(key, nonce []byte)
+
+	KeyBytes() (c int)
 	NonceBytes() (c int)
 }
 

@@ -11,6 +11,7 @@ import (
 	"github.com/Yawning/chacha20"
 	"github.com/Yawning/poly1305"
 	"go.artemisc.eu/godium"
+	"go.artemisc.eu/godium/core"
 )
 
 const (
@@ -25,31 +26,48 @@ var (
 )
 
 type chacha20poly1305ietf struct {
+	*chacha20.Cipher
 	key []byte
 }
 
 // NewChacha20Poly1305Ietf
 func NewChacha20Poly1305Ietf(key []byte) (impl godium.AEAD) {
 	impl = &chacha20poly1305ietf{
-		key: key,
+		Cipher: nil,
+		key:    key,
 	}
 	return
 }
 
+// initCipher
+func (a *chacha20poly1305ietf) initCipher(key, nonce []byte) {
+	if a.Cipher == nil {
+		a.Cipher, _ = chacha20.NewCipher(key, nonce)
+		return
+	}
+
+	_ = a.Cipher.ReKey(key, nonce)
+}
+
+// Wipe
 func (a *chacha20poly1305ietf) Wipe() {
 	godium.Wipe(a.key)
+	if a.Cipher != nil {
+		a.Cipher.Reset()
+	}
 }
 
 // Seal
 func (a *chacha20poly1305ietf) Seal(dst, nonce, plain, ad []byte) (cipher []byte) {
-	block0 := make([]byte, 64)
+	block0 := make([]byte, chacha20.BlockSize)
 	slen := make([]byte, 8)
-	mlen := len(plain)
-	adlen := len(ad)
+
+	mlen := uint64(len(plain))
+	adlen := uint64(len(ad))
 
 	// get poly key
-	ciph, _ := chacha20.NewCipher(a.key, nonce)
-	ciph.KeyStream(block0)
+	a.initCipher(a.key, nonce)
+	a.Cipher.KeyStream(block0)
 
 	// create poly
 	poly, _ := poly1305.New(block0[:poly1305.KeySize])
@@ -60,24 +78,22 @@ func (a *chacha20poly1305ietf) Seal(dst, nonce, plain, ad []byte) (cipher []byte
 	_, _ = poly.Write(pad0[:(0x10-adlen)&0xf])
 
 	// encrypt with xor
-	cipher = append(dst, plain...)
-	_ = ciph.Seek(1)
-	ciph.XORKeyStream(cipher, cipher)
+	cipher = core.AllocDst(dst, mlen+Chacha20Poly1305Ietf_ABytes)
+	a.Cipher.XORKeyStream(cipher[:mlen], plain)
 
 	// update tag
 	_, _ = poly.Write(cipher)
 	_, _ = poly.Write(pad0[:(0x10-mlen)&0xf])
 
-	binary.LittleEndian.PutUint64(slen, uint64(adlen))
+	binary.LittleEndian.PutUint64(slen, adlen)
 	_, _ = poly.Write(slen)
-	binary.LittleEndian.PutUint64(slen, uint64(mlen))
+	binary.LittleEndian.PutUint64(slen, mlen)
 	_, _ = poly.Write(slen)
 
 	// add tag
-	cipher = poly.Sum(cipher)
+	cipher = poly.Sum(cipher[mlen:mlen])
 
 	// clear state
-	ciph.Reset()
 	poly.Clear()
 
 	return
