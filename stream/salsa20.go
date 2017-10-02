@@ -26,7 +26,7 @@ type salsa20Impl struct {
 	block       [Salsa_BlockSize]byte
 	counter     [16]byte
 	blockOffset int
-	isx         bool
+	isXSalsa    bool
 }
 
 // NewSalsa20
@@ -69,15 +69,18 @@ func (s *salsa20Impl) Wipe() {
 
 // ReKey
 func (s *salsa20Impl) ReKey(key, nonce []byte) {
-	s.isx = len(nonce) >= XSalsa20_NonceBytes
+	s.isXSalsa = len(nonce) >= XSalsa20_NonceBytes
 
-	if s.isx {
+	if s.isXSalsa {
 		key = core.HSalsa20(nil, nonce, key, nil)
 		nonce = nonce[16:24]
 	}
 
 	copy(s.key[:], key)
 	copy(s.counter[:], nonce[:8])
+	for i := 8; i < 16; i++ {
+		s.counter[i] = 0
+	}
 }
 
 // KeyStream
@@ -172,7 +175,7 @@ func (s *salsa20Impl) Seek(counter uint64) (st godium.Stream) {
 
 func (s *salsa20Impl) KeyBytes() int { return Salsa20_KeyBytes }
 func (s *salsa20Impl) NonceBytes() int {
-	if s.isx {
+	if s.isXSalsa {
 		return 24
 	} else {
 		return 8
