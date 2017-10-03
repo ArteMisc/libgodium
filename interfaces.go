@@ -61,14 +61,13 @@ type AEAD interface {
 
 // Auth
 type Auth interface {
-	hash.Hash
+	Hash
 	Wiper
 
 	// Verify will check if the resulting Sum() of the Auth equals the provided
 	// authentication tag.
 	Verify(tag []byte) (matches bool)
 
-	Bytes() (c int)
 	KeyBytes() (c int)
 }
 
@@ -137,6 +136,31 @@ type SecretBox interface {
 	KeyBytes() (c int)
 	MacBytes() (c int)
 	NonceBytes() (c int)
+}
+
+// ShortHash
+type ShortHash interface {
+	Hash
+
+	KeyBytes() (c int)
+}
+
+// ShortHash64Func
+type ShortHash64Func func(key, data []byte) (sum uint64)
+
+// ShortHash128Func
+type ShortHash128Func func(key, data []byte) (sum1, sum2 uint64)
+
+// ShortHash64
+type ShortHash64 interface {
+	ShortHash
+	Sum64() (sum uint64)
+}
+
+// ShortHash128
+type ShortHash128 interface {
+	ShortHash
+	Sum128() (s1, s2 uint64)
 }
 
 // Stream
