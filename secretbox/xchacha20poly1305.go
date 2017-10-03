@@ -6,10 +6,10 @@
 package secretbox
 
 import (
-	"github.com/Yawning/chacha20"
-	"github.com/Yawning/poly1305"
 	"go.artemisc.eu/godium"
 	"go.artemisc.eu/godium/core"
+	"go.artemisc.eu/godium/onetimeauth"
+	"go.artemisc.eu/godium/stream"
 )
 
 const (
@@ -22,14 +22,14 @@ const (
 // specification.
 type xchacha20poly1305 struct {
 	godium.Key
-	*chacha20.Cipher
+	godium.Stream
+	godium.OneTimeAuth
 }
 
 // NewXChacha20Poly1305
 func NewXChacha20Poly1305(key []byte) (s godium.SecretBox) {
 	s = &xchacha20poly1305{
-		Key:    godium.Key(key),
-		Cipher: nil,
+		Key: godium.Key(key),
 	}
 	return
 }
@@ -37,50 +37,51 @@ func NewXChacha20Poly1305(key []byte) (s godium.SecretBox) {
 // Wipe
 func (s *xchacha20poly1305) Wipe() {
 	godium.Wipe(s.Key)
-	if s.Cipher != nil {
-		s.Cipher.Reset()
+	if s.Stream != nil {
+		s.Stream.Wipe()
+	}
+	if s.OneTimeAuth != nil {
+		s.OneTimeAuth.Wipe()
 	}
 }
 
-// initCipher
-func (s *xchacha20poly1305) initCipher(key, nonce []byte) {
-	if s.Cipher == nil {
-		s.Cipher, _ = chacha20.NewCipher(key, nonce)
-		return
+// initStream
+func (s *xchacha20poly1305) initStream(key, nonce []byte) {
+	var polyKey [onetimeauth.Poly1305_KeyBytes]byte
+
+	if s.Stream == nil {
+		s.Stream = stream.NewXChacha20(key, nonce)
+	} else {
+		s.Stream.ReKey(key, nonce)
 	}
-	s.Cipher.ReKey(key, nonce)
+
+	s.Stream.KeyStream(polyKey[:])
+
+	if s.OneTimeAuth == nil {
+		s.OneTimeAuth = onetimeauth.NewPoly1305(polyKey[:])
+	} else {
+		s.OneTimeAuth.ReKey(polyKey[:])
+	}
+
+	godium.Wipe(polyKey[:])
 }
 
 // SealDetached
 func (s xchacha20poly1305) SealDetached(dst, dstMac, nonce, plain []byte) (cipher, mac []byte) {
-	block0 := make([]byte, chacha20.BlockSize)
-	subkey := make([]byte, 0, chacha20.KeySize)
-
-	mlen := uint64(len(plain))
-
-	cipher = core.AllocDst(dst, mlen)
+	subKey := make([]byte, 0, stream.XChacha20_KeyBytes)
+	cipher = core.AllocDst(dst, uint64(len(plain)))
 	mac = core.AllocDst(dstMac, XChacha20Poly1305_MacBytes)
 
-	// get cipher from subkey
-	subkey = core.HChacha20(subkey, nonce[:core.HChacha20_InputBytes], s.Key, nil)
-	s.initCipher(subkey, nonce[16:24]) // TODO make 16/24 named constants
+	// get cipher from subKey
+	s.initStream(subKey, nonce[:XChacha20Poly1305_NonceBytes])
 
-	// get poly key, and first 32 bytes from xor'ed from the stream
-	first := copy(block0[poly1305.Size:], plain)       // put plain into block0, after poly
-	s.Cipher.XORKeyStream(block0, block0)              // xor the first block, counter goes to 1
-	poly, _ := poly1305.New(block0[:poly1305.KeySize]) // init poly
-	copy(cipher, block0[poly1305.Size:])               // copy first bytes of cipher
-
-	if first >= chacha20.BlockSize-poly1305.Size {
-		s.Cipher.XORKeyStream(cipher[poly1305.Size:], plain[poly1305.Size:])
-	}
+	s.Stream.XORKeyStream(cipher[XChacha20Poly1305_MacBytes:], plain)
 
 	// calculate the poly tag
-	poly.Write(cipher)
-	mac = poly.Sum(mac[:0])
+	s.OneTimeAuth.Write(cipher)
+	s.OneTimeAuth.Sum(mac[:0])
 
-	godium.Wipe(block0)
-
+	godium.Wipe(subKey)
 	return
 }
 
@@ -99,11 +100,35 @@ func (s xchacha20poly1305) Seal(dst, nonce, plain []byte) (cipher []byte) {
 	return
 }
 
+// OpenDetached
+func (s *xchacha20poly1305) OpenDetached(dst, nonce, mac, cipher []byte) (plain []byte, err error) {
+	subKey := make([]byte, 0, stream.XChacha20_KeyBytes)
+	cipher = core.AllocDst(dst, uint64(len(plain)))
+
+	// get cipher from subKey
+	s.initStream(subKey, nonce[:XChacha20Poly1305_NonceBytes])
+
+	// calculate the poly tag
+	s.OneTimeAuth.Write(cipher)
+	if !s.OneTimeAuth.Verify(mac) {
+		err = godium.ErrForgedOrCorrupted
+		return
+	}
+
+	s.Stream.XORKeyStream(cipher[XChacha20Poly1305_MacBytes:], plain)
+
+	godium.Wipe(subKey)
+	return
+}
+
 func (s xchacha20poly1305) Open(dst, nonce, cipher []byte) (plain []byte, err error) {
 	mlen := uint64(len(cipher)) - XChacha20Poly1305_MacBytes
-
 	plain = core.AllocDst(dst, mlen)
 
+	// call with slices of len == 0, pointing to the right parts of the plain
+	plain, err = s.OpenDetached(plain[:0], nonce,
+		cipher[:XChacha20Poly1305_MacBytes],
+		cipher[XChacha20Poly1305_MacBytes:])
 	return
 }
 

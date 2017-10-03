@@ -20,7 +20,7 @@ const (
 )
 
 // New
-func New(key, nonce []byte) (s godium.Stream){
+func New(key, nonce []byte) (s godium.Stream) {
 	s = NewXSalsa20(key, nonce)
 	return
 }

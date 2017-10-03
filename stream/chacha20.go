@@ -11,6 +11,8 @@ import (
 )
 
 const (
+	Chacha20_BlockSize = 64
+
 	Chacha20_KeyBytes   = 32
 	Chacha20_NonceBytes = 8
 

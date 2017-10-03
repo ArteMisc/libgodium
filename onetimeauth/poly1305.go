@@ -52,6 +52,11 @@ func (p *poly1305Impl) Wipe() {
 	p.Poly1305.Clear()
 }
 
+//
+func (p *poly1305Impl) ReKey(key []byte) {
+	p.Poly1305.Init(key)
+}
+
 // Verify
 func (p *poly1305Impl) Verify(tag []byte) (valid bool) {
 	valid = hmac.Equal(p.Sum(nil), tag)

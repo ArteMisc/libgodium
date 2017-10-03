@@ -118,9 +118,10 @@ type Hash interface {
 type OneTimeAuth interface {
 	Auth
 
-	// OneTimeAuth instances should only be used once. To use it again, it needs
-	// to be re-initialized with a new one-time key.
-	Init(key []byte)
+	// ReKey re-initializes the OneTimeAuth state with the new key. OneTimeAuth
+	// instances should only be used once. To use it again, it needs to be
+	// re-initialized with a new one-time key.
+	ReKey(key []byte)
 }
 
 // SecretBox

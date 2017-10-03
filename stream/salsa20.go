@@ -6,9 +6,9 @@
 package stream
 
 import (
+	"encoding/binary"
 	"go.artemisc.eu/godium"
 	"go.artemisc.eu/godium/core"
-	"encoding/binary"
 )
 
 const (
@@ -165,11 +165,10 @@ func (s *salsa20Impl) XORKeyStream(dst, src []byte) {
 	}
 }
 
+// Seek
 func (s *salsa20Impl) Seek(counter uint64) (st godium.Stream) {
 	st = s
-
 	binary.LittleEndian.PutUint64(s.counter[8:], counter)
-
 	return
 }
 
