@@ -35,6 +35,16 @@ func NewAes256Gcm(key []byte) (aesImpl godium.AEAD) {
 	return
 }
 
+// SealDetached
+func (a *aes256gcm) SealDetached(dst, dstMac, nonce, plain, ad []byte) (cipher, mac []byte) {
+	panic("aes256gcm: SealDetached not supported")
+}
+
+// OpenDetached
+func (a *aes256gcm) OpenDetached(dst, nonce, cipher, mac, ad []byte) (plain []byte, err error) {
+	panic("aes256gcm: SealDetached not supported")
+}
+
 // Wipe
 func (a *aes256gcm) Wipe() {
 	godium.Wipe(a.key)

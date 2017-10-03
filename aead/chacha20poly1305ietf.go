@@ -8,10 +8,10 @@ package aead
 import (
 	"encoding/binary"
 
-	"github.com/Yawning/chacha20"
-	"github.com/Yawning/poly1305"
 	"go.artemisc.eu/godium"
 	"go.artemisc.eu/godium/core"
+	"go.artemisc.eu/godium/onetimeauth"
+	"go.artemisc.eu/godium/stream"
 )
 
 const (
@@ -22,85 +22,138 @@ const (
 )
 
 var (
-	pad0 = make([]byte, 16)
+	pad0 [16]byte
 )
 
 type chacha20poly1305ietf struct {
-	*chacha20.Cipher
-	key []byte
+	godium.Key
+	godium.Stream
+	godium.OneTimeAuth
 }
 
 // NewChacha20Poly1305Ietf
 func NewChacha20Poly1305Ietf(key []byte) (impl godium.AEAD) {
 	impl = &chacha20poly1305ietf{
-		Cipher: nil,
-		key:    key,
+		Key: core.Copy(key, Chacha20Poly1305Ietf_KeyBytes),
 	}
 	return
 }
 
-// initCipher
-func (a *chacha20poly1305ietf) initCipher(key, nonce []byte) {
-	if a.Cipher == nil {
-		a.Cipher, _ = chacha20.NewCipher(key, nonce)
-		return
+// initAead
+func (a *chacha20poly1305ietf) initAead(key, nonce []byte) {
+	var block0 [stream.Chacha20Ietf_BlockBytes]byte
+
+	if a.Stream == nil {
+		a.Stream = stream.NewChacha20Ietf(key, nonce)
+	} else {
+		a.Stream.ReKey(key, nonce)
 	}
 
-	_ = a.Cipher.ReKey(key, nonce)
+	if a.OneTimeAuth == nil {
+		a.OneTimeAuth = onetimeauth.NewPoly1305(block0[:onetimeauth.Poly1305_KeyBytes])
+	} else {
+		a.OneTimeAuth.ReKey(block0[:onetimeauth.Poly1305_KeyBytes])
+	}
+
+	godium.Wipe(block0[:])
 }
 
 // Wipe
 func (a *chacha20poly1305ietf) Wipe() {
-	godium.Wipe(a.key)
-	if a.Cipher != nil {
-		a.Cipher.Reset()
+	godium.Wipe(a.Key)
+
+	if a.Stream != nil {
+		a.Stream.Wipe()
+	}
+	if a.OneTimeAuth != nil {
+		a.OneTimeAuth.Wipe()
 	}
 }
 
-// Seal
-func (a *chacha20poly1305ietf) Seal(dst, nonce, plain, ad []byte) (cipher []byte) {
-	block0 := make([]byte, chacha20.BlockSize)
+func (a *chacha20poly1305ietf) SealDetached(dst, dstMac, nonce, plain, ad []byte) (cipher, mac []byte) {
 	slen := make([]byte, 8)
 
 	mlen := uint64(len(plain))
 	adlen := uint64(len(ad))
 
-	// get poly key
-	a.initCipher(a.key, nonce)
-	a.Cipher.KeyStream(block0)
+	cipher = core.AllocDst(dst, mlen)
+	mac = core.AllocDst(dstMac, Chacha20Poly1305Ietf_ABytes)
 
-	// create poly
-	poly, _ := poly1305.New(block0[:poly1305.KeySize])
-	godium.Wipe(block0)
+	a.initAead(a.Key, nonce)
 
 	// update tag
-	_, _ = poly.Write(ad)
-	_, _ = poly.Write(pad0[:(0x10-adlen)&0xf])
+	a.OneTimeAuth.Write(ad)
+	a.OneTimeAuth.Write(pad0[:(0x10-adlen)&0xf])
 
 	// encrypt with xor
-	cipher = core.AllocDst(dst, mlen+Chacha20Poly1305Ietf_ABytes)
-	a.Cipher.XORKeyStream(cipher[:mlen], plain)
+	a.Stream.XORKeyStream(cipher[:mlen], plain)
 
 	// update tag
-	_, _ = poly.Write(cipher)
-	_, _ = poly.Write(pad0[:(0x10-mlen)&0xf])
+	a.OneTimeAuth.Write(cipher)
+	a.OneTimeAuth.Write(pad0[:(0x10-mlen)&0xf])
 
 	binary.LittleEndian.PutUint64(slen, adlen)
-	_, _ = poly.Write(slen)
+	a.OneTimeAuth.Write(slen)
 	binary.LittleEndian.PutUint64(slen, mlen)
-	_, _ = poly.Write(slen)
+	a.OneTimeAuth.Write(slen)
 
 	// add tag
-	cipher = poly.Sum(cipher[mlen:mlen])
+	a.OneTimeAuth.Sum(mac[:0])
 
-	// clear state
-	poly.Clear()
+	return
+}
+
+// Seal
+func (a *chacha20poly1305ietf) Seal(dst, nonce, plain, ad []byte) (cipher []byte) {
+	mlen := uint64(len(plain))
+	cipher = core.AllocDst(dst, mlen+Chacha20Poly1305_ABytes)
+
+	// call with slices of len == 0, pointing to the right parts of cipher.
+	_, _ = a.SealDetached(cipher[0:0], cipher[mlen:mlen], nonce, plain, ad)
+	return
+}
+
+// OpenDetached
+func (a *chacha20poly1305ietf) OpenDetached(dst, nonce, cipher, mac, ad []byte) (plain []byte, err error) {
+	slen := make([]byte, 8)
+
+	mlen := uint64(len(cipher))
+	adlen := uint64(len(ad))
+
+	plain = core.AllocDst(dst, mlen)
+
+	a.initAead(a.Key, nonce)
+
+	// update tag
+	a.OneTimeAuth.Write(ad)
+	a.OneTimeAuth.Write(pad0[:(0x10-adlen)&0xf])
+
+	a.OneTimeAuth.Write(cipher)
+	a.OneTimeAuth.Write(pad0[:(0x10-mlen)&0xf])
+
+	binary.LittleEndian.PutUint64(slen, adlen)
+	a.OneTimeAuth.Write(slen)
+	binary.LittleEndian.PutUint64(slen, mlen)
+	a.OneTimeAuth.Write(slen)
+
+	// verify tag
+	if !a.OneTimeAuth.Verify(mac) {
+		err = godium.ErrForgedOrCorrupted
+		return
+	}
+
+	// encrypt with xor
+	a.Stream.XORKeyStream(plain, cipher)
 
 	return
 }
 
 // Open
 func (a *chacha20poly1305ietf) Open(dst, nonce, cipher, ad []byte) (plain []byte, err error) {
+	mlen := uint64(len(cipher) - Chacha20Poly1305Ietf_ABytes)
+	plain = core.AllocDst(dst, mlen)
+
+	_, err = a.OpenDetached(plain[:0], nonce, cipher[:mlen], cipher[mlen:], ad)
 	return
 }
 

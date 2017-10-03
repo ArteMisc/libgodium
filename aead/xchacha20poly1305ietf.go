@@ -21,25 +21,28 @@ const (
 var sigmaConstant []byte = nil
 
 type xchacha20poly1305ietf struct {
-	key []byte
+	godium.Key
+	*chacha20poly1305ietf
 }
 
 // NewXChacha20Poly1305Ietf
 func NewXChacha20Poly1305Ietf(key []byte) (impl godium.AEAD) {
 	impl = &xchacha20poly1305ietf{
-		key: key,
+		Key:                  core.Copy(key, XChacha20Poly1305Ietf_KeyBytes),
+		chacha20poly1305ietf: new(chacha20poly1305ietf),
 	}
 	return
 }
 
 // Wipe
 func (a *xchacha20poly1305ietf) Wipe() {
-	godium.Wipe(a.key)
+	godium.Wipe(a.Key)
+	a.chacha20poly1305ietf.Wipe()
 }
 
-// hchacha performs the seal/open common setup of generating a new subkey and
+// initAead performs the seal/open common setup of generating a new subkey and
 // nonce to be passed to the chacha20poly1305ietf implementation.
-func (a *xchacha20poly1305ietf) hchacha(nonce []byte) (aead godium.AEAD, nonce2 []byte) {
+func (a *xchacha20poly1305ietf) initAead(nonce []byte) (nonce2 []byte) {
 	const (
 		// aliases
 		npubBytes = Chacha20Poly1305Ietf_NPubBytes
@@ -49,30 +52,50 @@ func (a *xchacha20poly1305ietf) hchacha(nonce []byte) (aead godium.AEAD, nonce2 
 	key2 := make([]byte, 0, keyBytes)
 	nonce2 = make([]byte, npubBytes)
 
-	key2 = core.HChacha20(key2, nonce2, a.key, sigmaConstant)
+	key2 = core.HChacha20(key2, nonce2, a.Key, sigmaConstant)
 	copy(nonce2[4:], nonce[core.HChacha20_InputBytes:core.HChacha20_InputBytes+8])
 
-	aead = NewXChacha20Poly1305Ietf(key2)
+	a.chacha20poly1305ietf.Key = key2
+	return
+}
+
+// Seal
+func (a *xchacha20poly1305ietf) SealDetached(dst, dstMac, nonce, plain, ad []byte) (cipher, mac []byte) {
+	nonce2 := a.initAead(nonce)
+
+	cipher, mac = a.chacha20poly1305ietf.SealDetached(dst, dstMac, nonce2, plain, ad)
+
+	godium.Wipe(a.chacha20poly1305ietf.Key)
 	return
 }
 
 // Seal
 func (a *xchacha20poly1305ietf) Seal(dst, nonce, plain, ad []byte) (cipher []byte) {
-	aead, nonce2 := a.hchacha(nonce)
+	nonce2 := a.initAead(nonce)
 
-	cipher = aead.Seal(dst, nonce2, plain, ad)
+	cipher = a.chacha20poly1305ietf.Seal(dst, nonce2, plain, ad)
 
-	aead.Wipe()
+	godium.Wipe(a.chacha20poly1305ietf.Key)
+	return
+}
+
+// OpenDetached
+func (a *xchacha20poly1305ietf) OpenDetached(dst, nonce, cipher, mac, ad []byte) (plain []byte, err error) {
+	nonce2 := a.initAead(nonce)
+
+	plain, err = a.chacha20poly1305ietf.OpenDetached(dst, nonce2, cipher, mac, ad)
+
+	godium.Wipe(a.chacha20poly1305ietf.Key)
 	return
 }
 
 // Open
 func (a *xchacha20poly1305ietf) Open(dst, nonce, cipher, ad []byte) (plain []byte, err error) {
-	aead, nonce2 := a.hchacha(nonce)
+	nonce2 := a.initAead(nonce)
 
-	plain, err = aead.Open(dst, nonce2, plain, ad)
+	plain, err = a.chacha20poly1305ietf.Open(dst, nonce2, cipher, ad)
 
-	aead.Wipe()
+	godium.Wipe(a.chacha20poly1305ietf.Key)
 	return
 }
 

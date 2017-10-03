@@ -17,3 +17,10 @@ func AllocDst(dst []byte, size uint64) (out []byte) {
 	}
 	return
 }
+
+// Copy
+func Copy(buf []byte, n uint64) (cpy []byte) {
+	cpy = make([]byte, n)
+	copy(cpy, buf)
+	return
+}

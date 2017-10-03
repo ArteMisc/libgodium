@@ -58,8 +58,8 @@ This library is built upon existing cryptographic implementations.
 * Scalar Mult
     * curve25519
 * Secret Box
-    * TODO xchacha20poly1305
-    * TODO xsalsa20poly1305
+    * xchacha20poly1305
+    * xsalsa20poly1305
 * Secret Stream
     * TODO xchacha20poly1305
 * Short Hash

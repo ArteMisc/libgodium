@@ -101,7 +101,7 @@ func (s xchacha20poly1305) Seal(dst, nonce, plain []byte) (cipher []byte) {
 }
 
 // OpenDetached
-func (s *xchacha20poly1305) OpenDetached(dst, nonce, mac, cipher []byte) (plain []byte, err error) {
+func (s *xchacha20poly1305) OpenDetached(dst, nonce, cipher, mac []byte) (plain []byte, err error) {
 	subKey := make([]byte, 0, stream.XChacha20_KeyBytes)
 	cipher = core.AllocDst(dst, uint64(len(plain)))
 

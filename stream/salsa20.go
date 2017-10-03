@@ -14,16 +14,16 @@ import (
 const (
 	Salsa20_KeyBytes   = 32
 	Salsa20_NonceBytes = 16
+	Salsa20_BlockBytes = 64
 
 	XSalsa20_KeyBytes   = 32
 	XSalsa20_NonceBytes = 24
-
-	Salsa_BlockSize = 64
+	XSalsa20_BlockBytes = 64
 )
 
 type salsa20Impl struct {
 	key         [Salsa20_KeyBytes]byte
-	block       [Salsa_BlockSize]byte
+	block       [Salsa20_BlockBytes]byte
 	counter     [16]byte
 	blockOffset int
 	isXSalsa    bool
@@ -93,7 +93,7 @@ func (s *salsa20Impl) KeyStream(dst []byte) {
 		s.blockOffset += n
 	}
 
-	if s.blockOffset == Salsa_BlockSize {
+	if s.blockOffset == Salsa20_BlockBytes {
 		s.incrCounter()
 		s.blockOffset = 0
 	}
@@ -103,12 +103,12 @@ func (s *salsa20Impl) KeyStream(dst []byte) {
 		s.nextState()
 		n := copy(dst, s.block[:])
 
-		if n < Salsa_BlockSize {
+		if n < Salsa20_BlockBytes {
 			s.blockOffset = n
 			return
 		}
 
-		dst = dst[Salsa_BlockSize:]
+		dst = dst[Salsa20_BlockBytes:]
 	}
 }
 
@@ -120,7 +120,7 @@ func (s *salsa20Impl) XORKeyStream(dst, src []byte) {
 
 	// first block, if partial / buffer left
 	if s.blockOffset > 0 {
-		rem := Salsa_BlockSize - s.blockOffset
+		rem := Salsa20_BlockBytes - s.blockOffset
 		key = s.block[s.blockOffset:]
 
 		// not the rest of the block left
@@ -142,15 +142,15 @@ func (s *salsa20Impl) XORKeyStream(dst, src []byte) {
 	}
 
 	// full blocks
-	for len(dst) >= Salsa_BlockSize {
+	for len(dst) >= Salsa20_BlockBytes {
 		s.nextState()
 
 		for i, v := range s.block {
 			dst[i] = src[i] ^ v
 		}
 
-		dst = dst[Salsa_BlockSize:]
-		src = src[Salsa_BlockSize:]
+		dst = dst[Salsa20_BlockBytes:]
+		src = src[Salsa20_BlockBytes:]
 	}
 
 	// partial block
@@ -180,3 +180,4 @@ func (s *salsa20Impl) NonceBytes() int {
 		return 8
 	}
 }
+func (s *salsa20Impl) BlockBytes() int { return Salsa20_BlockBytes }

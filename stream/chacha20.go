@@ -11,16 +11,17 @@ import (
 )
 
 const (
-	Chacha20_BlockSize = 64
-
 	Chacha20_KeyBytes   = 32
 	Chacha20_NonceBytes = 8
+	Chacha20_BlockBytes = 64
 
 	Chacha20Ietf_KeyBytes   = 32
 	Chacha20Ietf_NonceBytes = 12
+	Chacha20Ietf_BlockBytes = 64
 
 	XChacha20_KeyBytes   = 32
 	XChacha20_NonceBytes = 24
+	XChacha20_BlockBytes = 64
 )
 
 // chacha20 implements the chacha20, chacha20ietf and xchacha20 variants of the
@@ -90,3 +91,4 @@ func (s *chacha20Impl) Seek(counter uint64) (st godium.Stream) {
 
 func (s *chacha20Impl) KeyBytes() int   { return len(s.key) }
 func (s *chacha20Impl) NonceBytes() int { return len(s.nonce) }
+func (s *chacha20Impl) BlockBytes() int { return Chacha20_BlockBytes }

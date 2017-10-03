@@ -49,11 +49,9 @@ type AEAD interface {
 	cipher.AEAD
 	Wiper
 
-	// TODO provide a Detached interface
-	//
-	//SealDetached(dstCipher, dstTag, nonce, plaintext, ad []byte) (cipher, tag []byte)
-	//
-	//OpenDetached(dst, nonce, cipher, tag, ad []byte) (plain []byte, err error)
+	SealDetached(dst, dstMac, nonce, plain, ad []byte) (cipher, mac []byte)
+
+	OpenDetached(dst, nonce, cipher, mac, ad []byte) (plain []byte, err error)
 
 	KeyBytes() (c int)
 	NSecBytes() (c int)
@@ -129,7 +127,12 @@ type SecretBox interface {
 	Wiper
 
 	Seal(dst, nonce, plain []byte) (cipher []byte)
+
+	SealDetached(dst, dstMac, nonce, plain []byte) (cipher, mac []byte)
+
 	Open(dst, nonce, cipher []byte) (plain []byte, err error)
+
+	OpenDetached(dst, nonce, cipher, mac []byte) (plain []byte, err error)
 
 	KeyBytes() (c int)
 	MacBytes() (c int)
@@ -156,6 +159,7 @@ type Stream interface {
 
 	KeyBytes() (c int)
 	NonceBytes() (c int)
+	BlockBytes() (c int)
 }
 
 // Random provides an interface for CSPRNG functionality.
