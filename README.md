@@ -63,8 +63,8 @@ This library is built upon existing cryptographic implementations.
 * Secret Stream
     * TODO xchacha20poly1305
 * Short Hash
-    * TODO siphash24
-    * TODO siphashx24
+    * siphash24
+    * siphashx24
 * Signature
     * TODO ed25519 (EdDSA-25519)
 * Stream

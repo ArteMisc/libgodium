@@ -17,8 +17,8 @@ const (
 	Siphash24_Bytes    = 8
 	Siphash24_KeyBytes = 16
 
-	Siphash24x_Bytes    = 16
-	Siphash24x_KeyBytes = 16
+	Siphashx24_Bytes    = 16
+	Siphashx24_KeyBytes = 16
 
 	Primitive = "siphash24"
 	Bytes     = Siphash24_Bytes
@@ -35,7 +35,7 @@ func ShortHash64(key, data []byte) (sum uint64) {
 }
 
 func ShortHash128(key, data []byte) (s1, s2 uint64) {
-	s1, s2 = Siphash24x(key, data)
+	s1, s2 = Siphashx24(key, data)
 	return
 }
 
@@ -47,7 +47,7 @@ func Siphash24(key, data []byte) (sum uint64) {
 	return
 }
 
-func Siphash24x(key, data []byte) (s1, s2 uint64) {
+func Siphashx24(key, data []byte) (s1, s2 uint64) {
 	s1, s2 = siphash.Hash128(
 		binary.LittleEndian.Uint64(key[:8]),
 		binary.LittleEndian.Uint64(key[8:]),
@@ -67,7 +67,7 @@ func NewSiphash24(key []byte) (h godium.ShortHash64) {
 	return
 }
 
-func NewSiphash24x(key []byte) (h godium.ShortHash128) {
+func NewSiphashx24(key []byte) (h godium.ShortHash128) {
 	h = &siphashImpl{
 		Hash: siphash.New128(key),
 	}
