@@ -48,7 +48,7 @@ This library is built upon existing cryptographic implementations.
     * sha256
     * sha512
 * KDF (Key Derivation Function)
-    * TODO blake2b
+    * blake2b
 * KX (Key Exchange)
     * TODO x25519blake2b
 * OneTimeAuth
