@@ -116,6 +116,14 @@ type Hash interface {
 	Bytes() (c int)
 }
 
+// Kdf
+type Kdf interface {
+	Wiper
+
+	// Derive
+	Derive(dst []byte, subKeyLength, subKeyId uint64) (subKey []byte)
+}
+
 // OneTimeAuth
 type OneTimeAuth interface {
 	Auth
