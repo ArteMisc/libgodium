@@ -19,6 +19,11 @@ const (
 	Ed25519_SecretKeyBytes = 64
 	Ed25519_Bytes          = 64
 	Ed25519_SeedBytes      = 32
+
+	Ed25519ph_PublicKeyBytes = 32
+	Ed25519ph_SecretKeyBytes = 64
+	Ed25519ph_Bytes          = 64
+	Ed25519ph_SeedBytes      = 32
 )
 
 type Ed25519Sign struct {
