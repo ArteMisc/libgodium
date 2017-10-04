@@ -33,8 +33,8 @@ This library is built upon existing cryptographic implementations.
     * hmacsha512
     * hmacsha256256
 * Box
-    * TODO curve25519xchacha20poly1305
-    * TODO curve25519xsalsa20poly1305
+    * curve25519xchacha20poly1305
+    * curve25519xsalsa20poly1305
 * Core
     * hchacha20
     * hsalsa20
