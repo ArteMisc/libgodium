@@ -119,7 +119,7 @@ func Verify(message, sig, publicKey []byte, ph bool) bool {
 	var R ProjectiveGroupElement
 	var b [32]byte
 	copy(b[:], sig[32:])
-	edwards25519.GeDoubleScalarMultVartime(&R, &hReduced, &A, &b)
+	GeDoubleScalarMultVartime(&R, &hReduced, &A, &b)
 
 	var checkR [32]byte
 	R.ToBytes(&checkR)
