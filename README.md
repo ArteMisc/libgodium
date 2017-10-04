@@ -21,6 +21,7 @@ This library is built upon existing cryptographic implementations.
 * The Go Authors (crypto and golang/x/crypto packages)
 * [git.schwanenlied.me/yawning/chacha20](https://godoc.org/git.schwanenlied.me/yawning/chacha20)
 * [git.schwanenlied.me/yawning/poly1305](https://godoc.org/git.schwanenlied.me/yawning/poly1305)
+* [github.com/dchest/siphash](https://godoc.org/github.com/dchest/siphash)
 
 #### Implemented APIs
 * AEAD
