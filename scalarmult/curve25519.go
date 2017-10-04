@@ -33,7 +33,7 @@ func ScalarMult(dst, in, base []byte) (out []byte) {
 
 // ScalarMultBase
 func ScalarMultBase(dst, in []byte) (out []byte) {
-	out = Curve2519Base(dst, in)
+	out = Curve25519Base(dst, in)
 	return
 }
 
@@ -47,8 +47,8 @@ func Curve25519(dst, in, base []byte) (out []byte) {
 	return
 }
 
-// Curve2519Base
-func Curve2519Base(dst, in []byte) (out []byte) {
+// Curve25519Base
+func Curve25519Base(dst, in []byte) (out []byte) {
 	out = core.AllocDst(dst, Curve25519_ScalarBytes)
 	curve25519.ScalarBaseMult(
 		(*[Bytes]byte)(unsafe.Pointer(&out[0])),

@@ -75,14 +75,15 @@ type Auth interface {
 type Box interface {
 	Wiper
 
+	SealDetached(dst, dstMac, nonce, plain []byte, remote PublicKey) (cipher, mac []byte)
+
 	Seal(dst, nonce, plain []byte, remote PublicKey) (cipher []byte)
+
+	OpenDetached(dst, nonce, cipher, mac []byte, remote PublicKey) (plain []byte, err error)
+
 	Open(dst, nonce, cipher []byte, remote PublicKey) (plain []byte, err error)
 
-	// TODO Detached interface
-	// SealDetached
-	// OpenDetached
-
-	BeforeNM() SecretBox
+	BeforeNM(remote PublicKey) SecretBox
 
 	PublicKeyBytes() (c int)
 	SecretKeyBytes() (c int)
