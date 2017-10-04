@@ -82,7 +82,7 @@ func (h *siphashImpl) Sum64() (s uint64) {
 func (h *siphashImpl) Sum128() (s1, s2 uint64) {
 	sum := h.Hash.Sum(nil)
 	s1 = binary.LittleEndian.Uint64(sum[:8])
-	s1 = binary.LittleEndian.Uint64(sum[8:])
+	s2 = binary.LittleEndian.Uint64(sum[8:])
 	return
 }
 
