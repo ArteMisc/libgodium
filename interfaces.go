@@ -20,6 +20,10 @@ var (
 	// implementation failures, but also be a sign of an active
 	// man-in-the-middle attack
 	ErrForgedOrCorrupted = errors.New("authentication tag is invalid, message is forged or corrupted")
+
+	// ErrInvalidPoint is returned when a point on an elliptic curve is
+	// considered illegal, unsafe, or incorrectly formatted.
+	ErrInvalidPoint = errors.New("elliptic curve point not valid, rejected, or considered unsafe")
 )
 
 // Wipe will override the contents of the buffer p with 0's.
@@ -75,15 +79,15 @@ type Auth interface {
 type Box interface {
 	Wiper
 
-	SealDetached(dst, dstMac, nonce, plain []byte, remote PublicKey) (cipher, mac []byte)
+	SealDetached(dst, dstMac, nonce, plain []byte, remote PublicKey) (cipher, mac []byte, err error)
 
-	Seal(dst, nonce, plain []byte, remote PublicKey) (cipher []byte)
+	Seal(dst, nonce, plain []byte, remote PublicKey) (cipher []byte, err error)
 
 	OpenDetached(dst, nonce, cipher, mac []byte, remote PublicKey) (plain []byte, err error)
 
 	Open(dst, nonce, cipher []byte, remote PublicKey) (plain []byte, err error)
 
-	BeforeNM(remote PublicKey) SecretBox
+	BeforeNM(remote PublicKey) (sb SecretBox, err error)
 
 	PublicKeyBytes() (c int)
 	SecretKeyBytes() (c int)

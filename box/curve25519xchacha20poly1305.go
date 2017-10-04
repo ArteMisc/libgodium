@@ -40,32 +40,55 @@ func (b *Curve25519XChacha20Poly1305) Wipe() {
 	godium.Wipe(b.PrivateKey)
 }
 
-func (b *Curve25519XChacha20Poly1305) SealDetached(dst, dstMac, nonce, plain []byte, remote godium.PublicKey) (cipher, mac []byte) {
-	cipher, mac = b.BeforeNM(remote).SealDetached(dst, dstMac, nonce, plain)
+func (b *Curve25519XChacha20Poly1305) SealDetached(dst, dstMac, nonce, plain []byte, remote godium.PublicKey) (cipher, mac []byte, err error) {
+	sb, err := b.BeforeNM(remote)
+	if err != nil {
+		return
+	}
+	defer sb.Wipe()
+	cipher, mac = sb.SealDetached(dst, dstMac, nonce, plain)
 	return
 }
 
-func (b *Curve25519XChacha20Poly1305) Seal(dst, nonce, plain []byte, remote godium.PublicKey) (cipher []byte) {
-	cipher = b.BeforeNM(remote).Seal(dst, nonce, plain)
+func (b *Curve25519XChacha20Poly1305) Seal(dst, nonce, plain []byte, remote godium.PublicKey) (cipher []byte, err error) {
+	sb, err := b.BeforeNM(remote)
+	if err != nil {
+		return
+	}
+	defer sb.Wipe()
+	cipher = sb.Seal(dst, nonce, plain)
 	return
 }
 
 func (b *Curve25519XChacha20Poly1305) OpenDetached(dst, nonce, cipher, mac []byte, remote godium.PublicKey) (plain []byte, err error) {
-	plain, err = b.BeforeNM(remote).OpenDetached(dst, nonce, cipher, mac)
+	sb, err := b.BeforeNM(remote)
+	if err != nil {
+		return
+	}
+	defer sb.Wipe()
+	plain, err = sb.OpenDetached(dst, nonce, cipher, mac)
 	return
 }
 
 func (b *Curve25519XChacha20Poly1305) Open(dst, nonce, cipher []byte, remote godium.PublicKey) (plain []byte, err error) {
-	plain, err = b.BeforeNM(remote).Open(dst, nonce, cipher)
+	sb, err := b.BeforeNM(remote)
+	if err != nil {
+		return
+	}
+	defer sb.Wipe()
+	plain, err = sb.Open(dst, nonce, cipher)
 	return
 }
 
-func (b *Curve25519XChacha20Poly1305) BeforeNM(remote godium.PublicKey) (sb godium.SecretBox) {
+func (b *Curve25519XChacha20Poly1305) BeforeNM(remote godium.PublicKey) (sb godium.SecretBox, err error) {
 	var s []byte
 	var key []byte
 	var zero [16]byte
 
-	s = scalarmult.Curve25519(make([]byte, 0, 32), b.PrivateKey, remote)
+	s, err = scalarmult.Curve25519(make([]byte, 0, 32), b.PrivateKey, remote)
+	if err != nil {
+		return
+	}
 	key = core.HChacha20(make([]byte, 0, 32), zero[:], s, core.Salsa20Sigma[:])
 
 	sb = secretbox.NewXChacha20Poly1305(key[:])

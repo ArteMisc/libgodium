@@ -7,11 +7,12 @@
 /*
 
  */
-package scalarmult // import "go.artemisc.eu/godium/scalarmult"
+package scalarmult
 
 import (
 	"unsafe"
 
+	"go.artemisc.eu/godium"
 	"go.artemisc.eu/godium/core"
 	"golang.org/x/crypto/curve25519"
 )
@@ -19,31 +20,24 @@ import (
 const (
 	Curve25519_Bytes       = 32
 	Curve25519_ScalarBytes = 32
-
-	Primitive   = "curve25519"
-	Bytes       = Curve25519_Bytes
-	ScalarBytes = Curve25519_ScalarBytes
 )
 
-// ScalarMult
-func ScalarMult(dst, in, base []byte) (out []byte) {
-	out = Curve25519(dst, in, base)
-	return
-}
-
-// ScalarMultBase
-func ScalarMultBase(dst, in []byte) (out []byte) {
-	out = Curve25519Base(dst, in)
-	return
-}
-
 // Curve25519
-func Curve25519(dst, in, base []byte) (out []byte) {
+func Curve25519(dst, in, base []byte) (out []byte, err error) {
 	out = core.AllocDst(dst, Curve25519_ScalarBytes)
 	curve25519.ScalarMult(
 		(*[Bytes]byte)(unsafe.Pointer(&out[0])),
 		(*[Bytes]byte)(unsafe.Pointer(&in[0])),
 		(*[Bytes]byte)(unsafe.Pointer(&base[0])))
+
+	// check for invalid resulting key
+	d := byte(0)
+	for _, v := range out {
+		d |= v
+	}
+	if -(1 & ((d - 1) >> 8)) != 0 {
+		out, err = nil, godium.ErrInvalidPoint
+	}
 	return
 }
 
