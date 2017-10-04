@@ -164,6 +164,65 @@ type ShortHash128 interface {
 	Sum128() (s1, s2 uint64)
 }
 
+// Sign
+type Sign interface {
+	Wiper
+
+	// Detached signs the message data in unsigned, and returns a message with
+	// the signature
+	Sign(dst, unsigned []byte) (signed []byte)
+
+	// SignDetached creates a signature
+	SignDetached(dst, unsigned []byte) (signature []byte)
+
+	// io.Writer provides the Write method to the Signature interface. When
+	// Write is used, the Signature implementation moves to Multipart mode,
+	// which pre-hashes the message before signing.
+	//
+	// Note that this may produce a different signature then when full-message
+	// signatures are used, as the pre-hashing generated a different value for
+	// the signature key to sign.
+	io.Writer
+
+	// Final is the SignDetached method's equivalent for Multipart messages.
+	// This operation will fail if Write has not been called before.
+	Final(dst []byte) (signature []byte)
+
+	PublicKeyBytes() (c int)
+	SecretKeyBytes() (c int)
+	Bytes() (c int)
+	SeedBytes() (c int)
+}
+
+// SignVerifier
+type SignVerifier interface {
+	// Open will verify the signature, and return the message data without the
+	// signature.
+	Open(dst, signed []byte) (unsigned []byte, valid bool)
+
+	// VerifyDetached is the detached equivalent of Open, which simply verifies
+	// the signature.
+	VerifyDetached(signature, message []byte) (valid bool)
+
+	// io.Writer provides the Write method to the Signature interface. When
+	// Write is used, the Signature implementation moves to Multipart mode,
+	// which pre-hashes the message before signing.
+	//
+	// Note that this may produce a different signature then when full-message
+	// signatures are used, as the pre-hashing generated a different value for
+	// the signature key to sign.
+	io.Writer
+
+	// FinalVerify is the Verify method's equivalent for Multipart messages.
+	// This operation will fail if Write has not been called before.
+	FinalVerify(signature []byte) (valid bool)
+
+	PublicKeyBytes() (c int)
+	SecretKeyBytes() (c int)
+	Bytes() (c int)
+	SeedBytes() (c int)
+}
+
 // Stream
 type Stream interface {
 	cipher.Stream
@@ -179,7 +238,7 @@ type Stream interface {
 	// example: stream.Seek(1).KeyStream(stream)
 	Seek(counter uint64) Stream
 
-	// ReKey will re-initialize the stream with the given key/nonce conbination.
+	// ReKey will re-initialize the stream with the given key/nonce combination.
 	ReKey(key, nonce []byte)
 
 	KeyBytes() (c int)
