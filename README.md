@@ -22,6 +22,8 @@ This library is built upon existing cryptographic implementations.
 * [git.schwanenlied.me/yawning/chacha20](https://godoc.org/git.schwanenlied.me/yawning/chacha20)
 * [git.schwanenlied.me/yawning/poly1305](https://godoc.org/git.schwanenlied.me/yawning/poly1305)
 * [github.com/dchest/siphash](https://godoc.org/github.com/dchest/siphash)
+* [github.com/dchest/blake2b](https://godoc.org/github.com/dchest/blake2b)
+* [github.com/minio/blake2b-simd](https://godoc.org/github.com/minio/blake2b-simd)
 
 #### Implemented APIs
 * AEAD

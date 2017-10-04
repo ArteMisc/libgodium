@@ -253,9 +253,18 @@ type Stream interface {
 // Codec implements a constant-time encoding algorithm to convert between binary
 // data a printable text representation.
 type Codec interface {
+	// Encode appends the encoded value of bin to dst.
 	Encode(dst, bin []byte) (txt []byte)
+
+	// Decode appends the decoded value of txt to dst.
 	Decode(dst, txt []byte) (bin []byte)
+
+	// EncodedLength calculates what the length of the encoded value would be
+	// for this codec.
 	EncodedLength(decoded int) (encoded int)
+
+	// DecodedLength calculates what the length of the decoded value would be
+	// for this codec.
 	DecodedLength(encoded int) (decoded int)
 }
 
@@ -276,4 +285,18 @@ type Random interface {
 
 	// Implements the io.Reader interface, functions like Buf(p)
 	io.Reader
+}
+
+// Multipart is the generic interface used to describe a primitive that can
+// update its state incrementally.
+type Multipart interface {
+	// Writer implements the Write method, which can be used to update the state
+	// of the Multipart
+	io.Writer
+
+	Update(p []byte) Multipart
+
+	Final(dst []byte) (out []byte)
+
+	FinalVerify(expect []byte) (valid bool)
 }
