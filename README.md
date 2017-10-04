@@ -51,6 +51,7 @@ This library is built upon existing cryptographic implementations.
 * OneTimeAuth
     * poly1305
 * Password Hash
+    * TODO argon2id
     * TODO argon2i
     * TODO scrypt
 * Random bytes
