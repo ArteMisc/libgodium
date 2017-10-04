@@ -250,6 +250,15 @@ type Stream interface {
 	BlockBytes() (c int)
 }
 
+// Codec implements a constant-time encoding algorithm to convert between binary
+// data a printable text representation.
+type Codec interface {
+	Encode(dst, bin []byte) (txt []byte)
+	Decode(dst, txt []byte) (bin []byte)
+	EncodedLength(decoded int) (encoded int)
+	DecodedLength(encoded int) (decoded int)
+}
+
 // Random provides an interface for CSPRNG functionality.
 type Random interface {
 	UInt32() uint32
