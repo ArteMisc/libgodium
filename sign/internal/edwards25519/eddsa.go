@@ -8,17 +8,17 @@
 package edwards25519
 
 import (
+	"bytes"
 	"crypto/sha512"
 	"strconv"
 
 	"go.artemisc.eu/godium/core"
-	"bytes"
 )
 
 const (
-	publicKeySize = 32
+	publicKeySize  = 32
 	privateKeySize = 64
-	signatureSize = 64
+	signatureSize  = 64
 )
 
 var dom2prefix [32 + 2]byte = [...]byte{
@@ -86,7 +86,7 @@ func Sign(dst, message, privateKey []byte, ph bool) (signature []byte) {
 // Verify reports whether sig is a valid signature of message by publicKey. It
 // will panic if len(publicKey) is not PublicKeySize.
 func Verify(message, sig, publicKey []byte, ph bool) bool {
-		if l := len(publicKey); l != publicKeySize {
+	if l := len(publicKey); l != publicKeySize {
 		panic("ed25519: bad public key length: " + strconv.Itoa(l))
 	}
 
@@ -119,7 +119,7 @@ func Verify(message, sig, publicKey []byte, ph bool) bool {
 	var R ProjectiveGroupElement
 	var b [32]byte
 	copy(b[:], sig[32:])
-	GeDoubleScalarMultVartime(&R, &hReduced, &A, &b)
+	edwards25519.GeDoubleScalarMultVartime(&R, &hReduced, &A, &b)
 
 	var checkR [32]byte
 	R.ToBytes(&checkR)
