@@ -66,7 +66,8 @@ This library is built upon existing cryptographic implementations.
     * siphash24
     * siphashx24
 * Signature
-    * TODO ed25519 (EdDSA-25519)
+    * ed25519
+    * ed25519ph
 * Stream
     * chacha20
     * chacha20 ietf
