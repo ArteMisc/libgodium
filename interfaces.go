@@ -129,6 +129,22 @@ type Kdf interface {
 	KeyBytes() (c int)
 }
 
+// Kx
+type Kx interface {
+	Wiper
+
+	// ServerSessionKeys
+	ServerSessionKeys(dstRx, dstTx []byte, remote PublicKey) (rx, tx Key, err error)
+
+	// ServerSessionKeys
+	ClientSessionKeys(dstRx, dstTx []byte, remote PublicKey) (rx, tx Key, err error)
+
+	PublicKeyBytes() (c int)
+	SecretKeyBytes() (c int)
+	SeedBytes() (c int)
+	SessionKeyBytes() (c int)
+}
+
 // OneTimeAuth
 type OneTimeAuth interface {
 	Auth
