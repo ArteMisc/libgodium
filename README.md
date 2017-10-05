@@ -50,7 +50,7 @@ This library is built upon existing cryptographic implementations.
 * KDF (Key Derivation Function)
     * blake2b
 * KX (Key Exchange)
-    * TODO x25519blake2b
+    * x25519blake2b
 * OneTimeAuth
     * poly1305
 * Password Hash
