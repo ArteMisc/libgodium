@@ -62,3 +62,8 @@ func (k *Blake2b) Derive(dst []byte, length, id uint64) (subKey []byte) {
 
 	return
 }
+
+func (k *Blake2b) BytesMin() (c int)     { return Blake2b_BytesMin }
+func (k *Blake2b) BytesMax() (c int)     { return Blake2b_BytesMax }
+func (k *Blake2b) ContextBytes() (c int) { return Blake2b_ContextBytes }
+func (k *Blake2b) KeyBytes() (c int)     { return Blake2b_KeyBytes }

@@ -122,6 +122,11 @@ type Kdf interface {
 
 	// Derive
 	Derive(dst []byte, subKeyLength, subKeyId uint64) (subKey []byte)
+
+	BytesMin() (c int)
+	BytesMax() (c int)
+	ContextBytes() (c int)
+	KeyBytes() (c int)
 }
 
 // OneTimeAuth
