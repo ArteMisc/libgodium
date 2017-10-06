@@ -9,7 +9,7 @@
 Package OneTimeAuth implements primitives for secret key based one-time
 authentication codes.
 
- */
+*/
 package onetimeauth // import "go.artemisc.eu/godium/onetimeauth"
 
 import (
