@@ -183,7 +183,10 @@ type SecretBox interface {
 	NonceBytes() (c int)
 }
 
+// SecretStream
 type SecretStream interface {
+	Wiper
+
 	InitPush(dst []byte, key Key) (header []byte)
 	InitPull(header []byte, key Key) (err error)
 	Push(dst, plain, ad []byte, tag byte) (cipher []byte)
