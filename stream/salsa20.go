@@ -169,6 +169,7 @@ func (s *salsa20Impl) XORKeyStream(dst, src []byte) {
 func (s *salsa20Impl) Seek(counter uint64) (st godium.Stream) {
 	st = s
 	binary.LittleEndian.PutUint64(s.counter[8:], counter)
+	s.blockOffset = 0
 	return
 }
 

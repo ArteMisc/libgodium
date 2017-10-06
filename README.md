@@ -65,7 +65,7 @@ This library is built upon existing cryptographic implementations.
     * xchacha20poly1305
     * xsalsa20poly1305
 * Secret Stream
-    * TODO xchacha20poly1305
+    * xchacha20poly1305
 * Short Hash
     * siphash24
     * siphashx24

@@ -24,6 +24,17 @@ var (
 	// ErrInvalidPoint is returned when a point on an elliptic curve is
 	// considered illegal, unsafe, or incorrectly formatted.
 	ErrInvalidPoint = errors.New("elliptic curve point not valid, rejected, or considered unsafe")
+
+	// ErrCipherTooShort is returned when a ciphertext is shorter than a minimal
+	// amount of bytes, for example when an authenticated ciphertext is not long
+	// enough to at least contain the full authentication tag.
+	ErrCipherTooShort = errors.New("cipher shorter than minimal size")
+
+	// ErrBufferTooShort is returned when a buffer provided to a method is
+	// shorter than a minimal amount of expected bytes, for example a header
+	// that should at least contain a certain amount of bytes to hold a full
+	// piece of data for an algorithm.
+	ErrBufferTooShort = errors.New("buffer shorter than expected size")
 )
 
 // Wipe will override the contents of the buffer p with 0's.
@@ -170,6 +181,22 @@ type SecretBox interface {
 	KeyBytes() (c int)
 	MacBytes() (c int)
 	NonceBytes() (c int)
+}
+
+type SecretStream interface {
+	InitPush(dst []byte, key Key) (header []byte)
+	InitPull(header []byte, key Key) (err error)
+	Push(dst, plain, ad []byte, tag byte) (cipher []byte)
+	Pull(dst, cipher, ad []byte) (plain []byte, tag byte, err error)
+	ReKey()
+
+	ABytes() (c int)
+	HeaderBytes() (c int)
+	KeyBytes() (c int)
+	TAG_MESSAGE() (c byte)
+	TAG_PUSH() (c byte)
+	TAG_REKEY() (c byte)
+	TAG_FINAL() (c byte)
 }
 
 // ShortHash
