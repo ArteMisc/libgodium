@@ -151,6 +151,8 @@ type Kx interface {
 	// ServerSessionKeys
 	ClientSessionKeys(dstRx, dstTx []byte, remote PublicKey) (rx, tx Key, err error)
 
+	PublicKey() (pk PublicKey)
+
 	PublicKeyBytes() (c int)
 	SecretKeyBytes() (c int)
 	SeedBytes() (c int)

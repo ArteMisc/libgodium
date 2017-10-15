@@ -22,23 +22,40 @@ const (
 
 //
 type X25519Blake2b struct {
-	godium.PublicKey
-	godium.PrivateKey
+	public  godium.PublicKey
+	private godium.PrivateKey
 }
 
 // NewX25519Blake2b
 func NewX25519Blake2b(public godium.PublicKey, private godium.PrivateKey) (kx *X25519Blake2b) {
 	kx = &X25519Blake2b{
-		PublicKey:  core.Copy(public, X25519Blake2b_PublicKeyBytes),
-		PrivateKey: core.Copy(private, X25519Blake2b_SecretKeyBytes),
+		public:  core.Copy(public, X25519Blake2b_PublicKeyBytes),
+		private: core.Copy(private, X25519Blake2b_SecretKeyBytes),
+	}
+	return
+}
+
+// KeyGenX25519Blake2b
+func KeyGenX25519Blake2b(random godium.Random) (kx *X25519Blake2b, err error) {
+	private, err := random.KeyGen(X25519Blake2b_SecretKeyBytes)
+	if err != nil {
+		return
+	}
+
+	public := make([]byte, scalarmult.Curve25519_ScalarBytes)
+	scalarmult.Curve25519Base(public[:0], private)
+
+	kx = &X25519Blake2b{
+		public:  public,
+		private: private,
 	}
 	return
 }
 
 // Wipe
 func (kx *X25519Blake2b) Wipe() {
-	godium.Wipe(kx.PrivateKey)
-	godium.Wipe(kx.PublicKey)
+	godium.Wipe(kx.private)
+	godium.Wipe(kx.public)
 }
 
 // ServerSessionKeys
@@ -52,14 +69,14 @@ func (kx *X25519Blake2b) ServerSessionKeys(dstRx, dstTx []byte, remote godium.Pu
 	rx = core.AllocDst(dstRx, X25519Blake2b_SessionKeyBytes)
 	tx = core.AllocDst(dstTx, X25519Blake2b_SessionKeyBytes)
 
-	_, err = scalarmult.Curve25519(q[:0], kx.PrivateKey, remote)
+	_, err = scalarmult.Curve25519(q[:0], kx.private, remote)
 	if err != nil {
 		return
 	}
 
 	h := generichash.NewBlake2b512(nil)
 	h.Write(q[:])
-	h.Write(kx.PublicKey)
+	h.Write(kx.public)
 	h.Write(remote)
 	h.Sum(keys[:0])
 
@@ -80,7 +97,7 @@ func (kx *X25519Blake2b) ClientSessionKeys(dstRx, dstTx []byte, remote godium.Pu
 	rx = core.AllocDst(dstRx, X25519Blake2b_SessionKeyBytes)
 	tx = core.AllocDst(dstTx, X25519Blake2b_SessionKeyBytes)
 
-	_, err = scalarmult.Curve25519(q[:0], kx.PrivateKey, remote)
+	_, err = scalarmult.Curve25519(q[:0], kx.private, remote)
 	if err != nil {
 		return
 	}
@@ -88,13 +105,18 @@ func (kx *X25519Blake2b) ClientSessionKeys(dstRx, dstTx []byte, remote godium.Pu
 	h := generichash.NewBlake2b512(nil)
 	h.Write(q[:])
 	h.Write(remote)
-	h.Write(kx.PublicKey)
+	h.Write(kx.public)
 	h.Sum(keys[:0])
 
 	copy(tx[:], keys[:X25519Blake2b_SessionKeyBytes])
 	copy(rx[:], keys[X25519Blake2b_SessionKeyBytes:])
 
 	return
+}
+
+// PublicKey
+func (kx *X25519Blake2b) PublicKey() godium.PublicKey {
+	return core.Copy(kx.public, X25519Blake2b_PublicKeyBytes)
 }
 
 func (kx *X25519Blake2b) PublicKeyBytes() int  { return X25519Blake2b_PublicKeyBytes }

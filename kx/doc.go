@@ -26,3 +26,9 @@ func New(public godium.PublicKey, private godium.PrivateKey) (kx godium.Kx) {
 	kx = NewX25519Blake2b(public, private)
 	return
 }
+
+// KeyGen
+func KeyGen(random godium.Random) (kx godium.Kx, err error) {
+	kx, err = KeyGenX25519Blake2b(random)
+	return
+}
