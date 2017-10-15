@@ -5,6 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // Based on https://github.com/golang/crypto/blob/master/ed25519/ed25519.go
+
 package edwards25519
 
 import (
