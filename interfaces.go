@@ -3,6 +3,7 @@
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 package godium
 
 import (
@@ -164,6 +165,35 @@ type OneTimeAuth interface {
 	// instances should only be used once. To use it again, it needs to be
 	// re-initialized with a new one-time key.
 	ReKey(key []byte)
+}
+
+// PwHash implements a password hashing and password based key derivation
+// algorithm. These algorithms are meant to be hard on memory and slow to
+// compute.
+type PwHash interface {
+	Hash(dst, salt []byte, out, opslimit, memlimit uint64) (h []byte, err error)
+
+	Str(dst []byte, opslimit, memlimit uint64) (h []byte, err error)
+
+	StrVerify(h []byte) (err error)
+
+	BytesMin() (c int)
+	BytesMax() (c int)
+	PasswdMin() (c int)
+	PasswdMax() (c int)
+	MemLimitMin() (c int)
+	MemLimitMax() (c int)
+	MemLimitInteractive() (c int)
+	MemLimitModerate() (c int)
+	MemLimitSensitive() (c int)
+	OpsLimitMin() (c int)
+	OpsLimitMax() (c int)
+	OpsLimitInteractive() (c int)
+	OpsLimitModerate() (c int)
+	OpsLimitSensitive() (c int)
+	SaltBytes() (c int)
+	StrBytes() (c int)
+	StrPrefix() (s string)
 }
 
 // SecretBox

@@ -14,3 +14,12 @@ found in Go's standard library.
 
 */
 package godium // import "go.artemisc.eu/godium"
+
+// Version information, represents the latest libsodium version that this build
+// is compatible with.
+const (
+	VersionMajor = 10
+	VersionMinor = 0
+
+	Version = "1.0.15"
+)
