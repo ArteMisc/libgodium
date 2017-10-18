@@ -28,30 +28,66 @@ const (
 )
 
 type Ed25519Sign struct {
-	godium.PrivateKey
-	godium.PublicKey
-	Multipart godium.Hash
+	private   godium.PrivateKey
+	public    godium.PublicKey
+	multipart godium.Hash
 }
 
 // NewEd25519
 func NewEd25519(key godium.PrivateKey) (s godium.Sign) {
 	key = core.Copy(key, Ed25519_SecretKeyBytes)
 	s = &Ed25519Sign{
-		PrivateKey: key,
-		PublicKey:  godium.PublicKey(key[Ed25519_SeedBytes:Ed25519_SecretKeyBytes]),
+		private: key,
+		public:  godium.PublicKey(key[Ed25519_SeedBytes:Ed25519_SecretKeyBytes]),
 	}
 	return
 }
 
-func (s *Ed25519Sign) Wipe() {
-	godium.Wipe(s.PrivateKey)
+// KeyPairEd25519
+func KeyPairEd25519(random godium.Random) (s *Ed25519Sign, err error) {
+	seed, err := random.KeyGen(Ed25519_SeedBytes)
+	if err != nil {
+		return
+	}
+
+	s = KeyPairSeedEd25519(seed)
+	return
 }
 
+// KeyPairSeedEd25519
+func KeyPairSeedEd25519(seed []byte) (s *Ed25519Sign) {
+	seed = core.Copy(seed, SeedBytes)
+	defer godium.Wipe(seed)
+
+	s = new(Ed25519Sign)
+	s.private = make([]byte, Ed25519_SecretKeyBytes)
+	s.public = godium.PublicKey(s.private[Ed25519_SeedBytes:])
+
+	var hBytes [32]byte
+	hash.SumSha512(hBytes[:0], s.private[:Ed25519_SeedBytes])
+	hBytes[0] &= 248
+	hBytes[31] &= 127
+	hBytes[31] |= 64
+
+	var A edwards25519.ExtendedGroupElement
+	edwards25519.GeScalarMultBase(&A, &hBytes)
+	A.ToBytes(&hBytes)
+	copy(s.public[:], hBytes[:])
+
+	return
+}
+
+// Wipe
+func (s *Ed25519Sign) Wipe() {
+	godium.Wipe(s.private)
+}
+
+// Write
 func (s *Ed25519Sign) Write(p []byte) (n int, err error) {
-	if s.Multipart == nil {
-		s.Multipart = hash.NewSha512()
+	if s.multipart == nil {
+		s.multipart = hash.NewSha512()
 	}
-	n, err = s.Multipart.Write(p)
+	n, err = s.multipart.Write(p)
 	return
 }
 
@@ -75,20 +111,25 @@ func (s *Ed25519Sign) Sign(dst, unsigned []byte) (signed []byte) {
 // SignDetached
 func (s *Ed25519Sign) SignDetached(dst, unsigned []byte) (signature []byte) {
 	signature = core.AllocDst(dst, Ed25519_Bytes)
-	edSign := edwards25519.Sign(signature[:0], unsigned, s.PrivateKey, false)
+	edSign := edwards25519.Sign(signature[:0], unsigned, s.private, false)
 	copy(signature, edSign)
 	return
 }
 
 // Final
 func (s *Ed25519Sign) Final(dst []byte) (signature []byte) {
-	if s.Multipart == nil {
+	if s.multipart == nil {
 		return // TODO fail/panic?
 	}
 	ph := make([]byte, 0, hash.Sha512_Bytes)
-	ph = s.Multipart.Sum(ph)
-	signature = edwards25519.Sign(dst, ph, s.PrivateKey, true)
+	ph = s.multipart.Sum(ph)
+	signature = edwards25519.Sign(dst, ph, s.private, true)
 	return
+}
+
+// PublicKey
+func (s *Ed25519Sign) PublicKey() godium.PublicKey {
+	return core.Copy(s.public, Ed25519_PublicKeyBytes)
 }
 
 func (s *Ed25519Sign) PublicKeyBytes() (c int) { return Ed25519_PublicKeyBytes }

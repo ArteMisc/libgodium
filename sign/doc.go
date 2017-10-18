@@ -30,3 +30,15 @@ func NewVerifier(key godium.PublicKey) (v godium.SignVerifier) {
 	v = NewEd25519Verifier(key)
 	return
 }
+
+// KeyPair
+func KeyPair(random godium.Random) (s godium.Sign, err error) {
+	s, err = KeyPairEd25519(random)
+	return
+}
+
+// KeyPairSeed
+func KeyPairSeed(seed []byte) (s godium.Sign) {
+	s = KeyPairSeedEd25519(seed)
+	return
+}

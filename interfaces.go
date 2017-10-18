@@ -283,6 +283,9 @@ type Sign interface {
 	// This operation will fail if Write has not been called before.
 	Final(dst []byte) (signature []byte)
 
+	// PublicKey
+	PublicKey() (p PublicKey)
+
 	PublicKeyBytes() (c int)
 	SecretKeyBytes() (c int)
 	Bytes() (c int)
