@@ -9,7 +9,7 @@ package pwhash
 import (
 	"math"
 
-	"go.artemisc.eu/godium/core"
+	"go.artemisc.eu/godium/internal"
 )
 
 const (
@@ -41,7 +41,7 @@ type Argon2i struct {
 // NewArgon2i
 func NewArgon2i(pw []byte) (a *Argon2i) {
 	a = &Argon2i{
-		pw: core.Copy(pw, uint64(len(pw))),
+		pw: internal.Copy(pw, uint64(len(pw))),
 	}
 	return
 }

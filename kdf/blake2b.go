@@ -10,8 +10,8 @@ import (
 	"encoding/binary"
 
 	"go.artemisc.eu/godium"
-	"go.artemisc.eu/godium/core"
 	"go.artemisc.eu/godium/generichash"
+	"go.artemisc.eu/godium/internal"
 )
 
 const (
@@ -31,7 +31,7 @@ type Blake2b struct {
 // NewBlake2b
 func NewBlake2b(key, ctx []byte) (b *Blake2b) {
 	b = new(Blake2b)
-	b.Key = core.Copy(key, Blake2b_KeyBytes)
+	b.Key = internal.Copy(key, Blake2b_KeyBytes)
 	copy(b.Context[:], ctx)
 	return
 }
@@ -47,7 +47,7 @@ func (k *Blake2b) Derive(dst []byte, length, id uint64) (subKey []byte) {
 	var context [generichash.Blake2b_PersonalBytes]byte
 	var salt [generichash.Blake2b_SaltBytes]byte
 
-	subKey = core.AllocDst(dst, length)
+	subKey = internal.AllocDst(dst, length)
 	copy(context[:8], k.Context[:])
 	for i := range context[8:] {
 		context[i] = 0x00

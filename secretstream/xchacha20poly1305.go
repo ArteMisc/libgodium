@@ -8,9 +8,11 @@ package secretstream
 
 import (
 	"encoding/binary"
+
 	"go.artemisc.eu/godium"
 	"go.artemisc.eu/godium/aead"
 	"go.artemisc.eu/godium/core"
+	"go.artemisc.eu/godium/internal"
 	"go.artemisc.eu/godium/onetimeauth"
 	"go.artemisc.eu/godium/random"
 	"go.artemisc.eu/godium/stream"
@@ -100,7 +102,7 @@ func (s *XChacha20Poly1305) Wipe() {
 
 // InitPush
 func (s *XChacha20Poly1305) InitPush(dst []byte, key godium.Key) (header []byte) {
-	header = core.AllocDst(dst, XChacha20Poly1305_HeaderBytes)
+	header = internal.AllocDst(dst, XChacha20Poly1305_HeaderBytes)
 
 	rand.Buf(header)
 	core.HChacha20(s.key[:0], header, key, nil)
@@ -166,7 +168,7 @@ func (s *XChacha20Poly1305) Push(dst, plain, ad []byte, t byte) (cipher []byte) 
 	var adlen uint64 = uint64(len(ad))
 	var tag XChacha20Poly1305Tag = XChacha20Poly1305Tag(t)
 
-	cipher = core.AllocDst(dst, mlen+XChacha20Poly1305_ABytes)
+	cipher = internal.AllocDst(dst, mlen+XChacha20Poly1305_ABytes)
 
 	defer godium.Wipe(block[:])
 	defer godium.Wipe(mac[:])
@@ -256,7 +258,7 @@ func (s *XChacha20Poly1305) Pull(dst, cipher, ad []byte) (plain []byte, tag byte
 		return
 	}
 
-	plain = core.AllocDst(dst, mlen)
+	plain = internal.AllocDst(dst, mlen)
 
 	s.stream.XORKeyStream(plain, c)
 	iNonce := s.stateINonce()

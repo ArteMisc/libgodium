@@ -7,11 +7,12 @@
 package sign
 
 import (
-	"go.artemisc.eu/godium"
-	"go.artemisc.eu/godium/core"
-	"go.artemisc.eu/godium/hash"
-	"go.artemisc.eu/godium/sign/internal/edwards25519"
 	"unsafe"
+
+	"go.artemisc.eu/godium"
+	"go.artemisc.eu/godium/hash"
+	"go.artemisc.eu/godium/internal"
+	"go.artemisc.eu/godium/sign/internal/edwards25519"
 )
 
 type Ed25519SignVerifier struct {
@@ -41,7 +42,7 @@ func (v *Ed25519SignVerifier) Open(dst, signed []byte) (unsigned []byte, valid b
 	}
 
 	mlen := uint64(len(signed)) - Ed25519_Bytes
-	unsigned = core.AllocDst(dst, mlen)
+	unsigned = internal.AllocDst(dst, mlen)
 
 	if uintptr(unsafe.Pointer(&unsigned[0])) != uintptr(unsafe.Pointer(&signed[Ed25519_Bytes])) {
 		copy(unsigned, signed[:])

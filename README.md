@@ -16,14 +16,8 @@ Unless otherwise specified, code present in this library is licensed under the
 [Mozilla Public License Version v2.0](https://www.mozilla.org/en-US/MPL/2.0/ "MPL v2.0").
 
 ## Credits
-This library is built upon existing cryptographic implementations.
-
-* The Go Authors (crypto and golang/x/crypto packages)
-* [git.schwanenlied.me/yawning/chacha20](https://godoc.org/git.schwanenlied.me/yawning/chacha20)
-* [git.schwanenlied.me/yawning/poly1305](https://godoc.org/git.schwanenlied.me/yawning/poly1305)
-* [github.com/dchest/siphash](https://godoc.org/github.com/dchest/siphash)
-* [github.com/dchest/blake2b](https://godoc.org/github.com/dchest/blake2b)
-* [github.com/minio/blake2b-simd](https://godoc.org/github.com/minio/blake2b-simd)
+This library is built upon existing cryptographic implementations. See the
+[CREDITS.md](./CREDITS.md) file for relevant credits/licenses.
 
 #### Implemented APIs
 * AEAD

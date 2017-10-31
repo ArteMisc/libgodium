@@ -13,7 +13,7 @@ import (
 	"unsafe"
 
 	"go.artemisc.eu/godium"
-	"go.artemisc.eu/godium/core"
+	"go.artemisc.eu/godium/internal"
 	"golang.org/x/crypto/curve25519"
 )
 
@@ -24,7 +24,7 @@ const (
 
 // Curve25519
 func Curve25519(dst, in, base []byte) (out []byte, err error) {
-	out = core.AllocDst(dst, Curve25519_ScalarBytes)
+	out = internal.AllocDst(dst, Curve25519_ScalarBytes)
 	curve25519.ScalarMult(
 		(*[Bytes]byte)(unsafe.Pointer(&out[0])),
 		(*[Bytes]byte)(unsafe.Pointer(&in[0])),
@@ -43,7 +43,7 @@ func Curve25519(dst, in, base []byte) (out []byte, err error) {
 
 // Curve25519Base
 func Curve25519Base(dst, in []byte) (out []byte) {
-	out = core.AllocDst(dst, Curve25519_ScalarBytes)
+	out = internal.AllocDst(dst, Curve25519_ScalarBytes)
 	curve25519.ScalarBaseMult(
 		(*[Bytes]byte)(unsafe.Pointer(&out[0])),
 		(*[Bytes]byte)(unsafe.Pointer(&in[0])))

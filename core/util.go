@@ -6,26 +6,6 @@
 
 package core
 
-// AllocDst
-func AllocDst(dst []byte, size uint64) (out []byte) {
-	l := uint64(len(dst))
-	c := uint64(cap(dst))
-
-	if c-l < size {
-		out = make([]byte, size)
-	} else {
-		out = dst[l : l+size]
-	}
-	return
-}
-
-// Copy
-func Copy(buf []byte, n uint64) (cpy []byte) {
-	cpy = make([]byte, n)
-	copy(cpy, buf)
-	return
-}
-
 // IsZero returns true if all bytes in buf are 0.
 func IsZero(buf []byte) (zero bool) {
 	var d uint8

@@ -11,7 +11,7 @@ import (
 
 	"github.com/minio/blake2b-simd"
 	"go.artemisc.eu/godium"
-	"go.artemisc.eu/godium/core"
+	"go.artemisc.eu/godium/internal"
 )
 
 const (
@@ -90,13 +90,13 @@ func NewBlake2b(size uint32, key []byte) (gh godium.GenericHash) {
 func NewBlake2bSaltPersonal(size uint32, key, personal, salt []byte) (b *Blake2b) {
 	c := new(blake2b.Config)
 	c.Size = uint8(size)
-	c.Key = core.Copy(key, uint64(len(key)))
+	c.Key = internal.Copy(key, uint64(len(key)))
 	if personal != nil {
 
-		c.Person = core.Copy(personal, Blake2b_PersonalBytes)
+		c.Person = internal.Copy(personal, Blake2b_PersonalBytes)
 	}
 	if salt != nil {
-		c.Salt = core.Copy(salt, Blake2b_SaltBytes)
+		c.Salt = internal.Copy(salt, Blake2b_SaltBytes)
 	}
 	h, _ := blake2b.New(&blake2b.Config{})
 

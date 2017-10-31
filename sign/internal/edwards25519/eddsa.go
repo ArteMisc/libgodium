@@ -13,7 +13,7 @@ import (
 	"crypto/sha512"
 	"strconv"
 
-	"go.artemisc.eu/godium/core"
+	"go.artemisc.eu/godium/internal"
 )
 
 const (
@@ -77,7 +77,7 @@ func Sign(dst, message, privateKey []byte, ph bool) (signature []byte) {
 	var s [32]byte
 	ScMulAdd(&s, &hramDigestReduced, &expandedSecretKey, &messageDigestReduced)
 
-	signature = core.AllocDst(dst, signatureSize)
+	signature = internal.AllocDst(dst, signatureSize)
 	copy(signature[:], encodedR[:])
 	copy(signature[32:], s[:])
 

@@ -10,7 +10,7 @@ import (
 	"encoding/binary"
 
 	"go.artemisc.eu/godium"
-	"go.artemisc.eu/godium/core"
+	"go.artemisc.eu/godium/internal"
 	"go.artemisc.eu/godium/onetimeauth"
 	"go.artemisc.eu/godium/stream"
 )
@@ -31,7 +31,7 @@ type chacha20poly1305 struct {
 // NewChacha20Poly1305
 func NewChacha20Poly1305(key []byte) (impl godium.AEAD) {
 	impl = &chacha20poly1305{
-		Key: core.Copy(key, Chacha20Poly1305_KeyBytes),
+		Key: internal.Copy(key, Chacha20Poly1305_KeyBytes),
 	}
 	return
 }
@@ -72,8 +72,8 @@ func (a *chacha20poly1305) SealDetached(dst, dstMac, nonce, plain, ad []byte) (c
 	mlen := uint64(len(plain))
 	adlen := uint64(len(ad))
 
-	cipher = core.AllocDst(dst, mlen)
-	mac = core.AllocDst(dstMac, Chacha20Poly1305_ABytes)
+	cipher = internal.AllocDst(dst, mlen)
+	mac = internal.AllocDst(dstMac, Chacha20Poly1305_ABytes)
 
 	a.initAead(a.Key, nonce)
 
@@ -99,7 +99,7 @@ func (a *chacha20poly1305) SealDetached(dst, dstMac, nonce, plain, ad []byte) (c
 // Seal
 func (a *chacha20poly1305) Seal(dst, nonce, plain, ad []byte) (cipher []byte) {
 	mlen := uint64(len(plain))
-	cipher = core.AllocDst(dst, mlen+Chacha20Poly1305_ABytes)
+	cipher = internal.AllocDst(dst, mlen+Chacha20Poly1305_ABytes)
 
 	// call with slices of len == 0, pointing to the right parts of cipher.
 	_, _ = a.SealDetached(cipher[0:0], cipher[mlen:mlen], nonce, plain, ad)
@@ -113,7 +113,7 @@ func (a *chacha20poly1305) OpenDetached(dst, nonce, cipher, mac, ad []byte) (pla
 	mlen := uint64(len(cipher))
 	adlen := uint64(len(ad))
 
-	plain = core.AllocDst(dst, mlen)
+	plain = internal.AllocDst(dst, mlen)
 
 	a.initAead(a.Key, nonce)
 
@@ -141,7 +141,7 @@ func (a *chacha20poly1305) OpenDetached(dst, nonce, cipher, mac, ad []byte) (pla
 // Open
 func (a *chacha20poly1305) Open(dst, nonce, cipher, ad []byte) (plain []byte, err error) {
 	mlen := uint64(len(cipher) - Chacha20Poly1305_ABytes)
-	plain = core.AllocDst(dst, mlen)
+	plain = internal.AllocDst(dst, mlen)
 
 	// call with slices of len == 0, pointing to the right parts of cipher.
 	_, err = a.OpenDetached(plain, nonce, cipher[:mlen], cipher[mlen:], ad)

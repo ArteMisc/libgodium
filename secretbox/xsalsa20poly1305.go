@@ -8,7 +8,7 @@ package secretbox
 
 import (
 	"go.artemisc.eu/godium"
-	"go.artemisc.eu/godium/core"
+	"go.artemisc.eu/godium/internal"
 	"go.artemisc.eu/godium/onetimeauth"
 	"go.artemisc.eu/godium/stream"
 )
@@ -81,8 +81,8 @@ func (s *xsalsa20poly1305) initStream(key, nonce []byte) {
 // SealDetached
 func (s *xsalsa20poly1305) SealDetached(dst, dstMac, nonce, plain []byte) (cipher, mac []byte) {
 	subKey := make([]byte, 0, stream.XSalsa20_KeyBytes)
-	cipher = core.AllocDst(dst, uint64(len(plain)))
-	mac = core.AllocDst(dstMac, XSalsa20Poly1305_MacBytes)
+	cipher = internal.AllocDst(dst, uint64(len(plain)))
+	mac = internal.AllocDst(dstMac, XSalsa20Poly1305_MacBytes)
 
 	// get cipher from subKey
 	s.initStream(subKey, nonce[:XSalsa20Poly1305_NonceBytes])
@@ -101,7 +101,7 @@ func (s *xsalsa20poly1305) SealDetached(dst, dstMac, nonce, plain []byte) (ciphe
 func (s *xsalsa20poly1305) Seal(dst, nonce, plain []byte) (cipher []byte) {
 	mlen := uint64(len(plain))
 
-	cipher = core.AllocDst(dst, mlen+XSalsa20Poly1305_MacBytes)
+	cipher = internal.AllocDst(dst, mlen+XSalsa20Poly1305_MacBytes)
 
 	// call with slices of len == 0, pointing to the right parts of cipher.
 	_, _ = s.SealDetached(
@@ -115,7 +115,7 @@ func (s *xsalsa20poly1305) Seal(dst, nonce, plain []byte) (cipher []byte) {
 // OpenDetached
 func (s *xsalsa20poly1305) OpenDetached(dst, nonce, cipher, mac []byte) (plain []byte, err error) {
 	subKey := make([]byte, 0, stream.XSalsa20_KeyBytes)
-	cipher = core.AllocDst(dst, uint64(len(plain)))
+	cipher = internal.AllocDst(dst, uint64(len(plain)))
 
 	// get cipher from subKey
 	s.initStream(subKey, nonce[:XSalsa20Poly1305_NonceBytes])
@@ -136,7 +136,7 @@ func (s *xsalsa20poly1305) OpenDetached(dst, nonce, cipher, mac []byte) (plain [
 // Open
 func (s *xsalsa20poly1305) Open(dst, nonce, cipher []byte) (plain []byte, err error) {
 	mlen := uint64(len(cipher)) - XSalsa20Poly1305_MacBytes
-	plain = core.AllocDst(dst, mlen)
+	plain = internal.AllocDst(dst, mlen)
 
 	// call with slices of len == 0, pointing to the right parts of the plain
 	plain, err = s.OpenDetached(plain[:0], nonce,

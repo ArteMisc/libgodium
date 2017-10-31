@@ -8,6 +8,7 @@ package stream
 
 import (
 	"encoding/binary"
+
 	"go.artemisc.eu/godium"
 	"go.artemisc.eu/godium/core"
 )

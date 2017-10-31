@@ -8,12 +8,13 @@ package pwhash
 
 import (
 	"bytes"
+	"crypto/subtle"
 	"math"
 
-	"go.artemisc.eu/godium"
-	"go.artemisc.eu/godium/core"
 	//"golang.org/x/crypto/scrypt"
-	"crypto/subtle"
+
+	"go.artemisc.eu/godium"
+	"go.artemisc.eu/godium/internal"
 )
 
 const (
@@ -46,7 +47,7 @@ type Scrypt struct {
 // NewScrypt
 func NewScrypt(pw []byte) (ph godium.PwHash) {
 	ph = &Scrypt{
-		pw: core.Copy(pw, uint64(len(pw))),
+		pw: internal.Copy(pw, uint64(len(pw))),
 	}
 	return
 }
@@ -109,7 +110,7 @@ func (pw *Scrypt) Hash(dst, salt []byte, out, opslimit, memlimit uint64) (h []by
 
 // Str
 func (pw *Scrypt) Str(dst []byte, opslimit, memlimit uint64) (h []byte, err error) {
-	h = core.AllocDst(dst, Scrypt_StrBytes)[:0]
+	h = internal.AllocDst(dst, Scrypt_StrBytes)[:0]
 	salt := make([]byte, Scrypt_SaltBytes)
 
 	err = reader.Buf(salt)

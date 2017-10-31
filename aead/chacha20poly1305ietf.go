@@ -10,7 +10,7 @@ import (
 	"encoding/binary"
 
 	"go.artemisc.eu/godium"
-	"go.artemisc.eu/godium/core"
+	"go.artemisc.eu/godium/internal"
 	"go.artemisc.eu/godium/onetimeauth"
 	"go.artemisc.eu/godium/stream"
 )
@@ -35,7 +35,7 @@ type chacha20poly1305ietf struct {
 // NewChacha20Poly1305Ietf
 func NewChacha20Poly1305Ietf(key []byte) (impl godium.AEAD) {
 	impl = &chacha20poly1305ietf{
-		Key: core.Copy(key, Chacha20Poly1305Ietf_KeyBytes),
+		Key: internal.Copy(key, Chacha20Poly1305Ietf_KeyBytes),
 	}
 	return
 }
@@ -77,8 +77,8 @@ func (a *chacha20poly1305ietf) SealDetached(dst, dstMac, nonce, plain, ad []byte
 	mlen := uint64(len(plain))
 	adlen := uint64(len(ad))
 
-	cipher = core.AllocDst(dst, mlen)
-	mac = core.AllocDst(dstMac, Chacha20Poly1305Ietf_ABytes)
+	cipher = internal.AllocDst(dst, mlen)
+	mac = internal.AllocDst(dstMac, Chacha20Poly1305Ietf_ABytes)
 
 	a.initAead(a.Key, nonce)
 
@@ -107,7 +107,7 @@ func (a *chacha20poly1305ietf) SealDetached(dst, dstMac, nonce, plain, ad []byte
 // Seal
 func (a *chacha20poly1305ietf) Seal(dst, nonce, plain, ad []byte) (cipher []byte) {
 	mlen := uint64(len(plain))
-	cipher = core.AllocDst(dst, mlen+Chacha20Poly1305_ABytes)
+	cipher = internal.AllocDst(dst, mlen+Chacha20Poly1305_ABytes)
 
 	// call with slices of len == 0, pointing to the right parts of cipher.
 	_, _ = a.SealDetached(cipher[0:0], cipher[mlen:mlen], nonce, plain, ad)
@@ -121,7 +121,7 @@ func (a *chacha20poly1305ietf) OpenDetached(dst, nonce, cipher, mac, ad []byte) 
 	mlen := uint64(len(cipher))
 	adlen := uint64(len(ad))
 
-	plain = core.AllocDst(dst, mlen)
+	plain = internal.AllocDst(dst, mlen)
 
 	a.initAead(a.Key, nonce)
 
@@ -152,7 +152,7 @@ func (a *chacha20poly1305ietf) OpenDetached(dst, nonce, cipher, mac, ad []byte) 
 // Open
 func (a *chacha20poly1305ietf) Open(dst, nonce, cipher, ad []byte) (plain []byte, err error) {
 	mlen := uint64(len(cipher) - Chacha20Poly1305Ietf_ABytes)
-	plain = core.AllocDst(dst, mlen)
+	plain = internal.AllocDst(dst, mlen)
 
 	_, err = a.OpenDetached(plain[:0], nonce, cipher[:mlen], cipher[mlen:], ad)
 	return

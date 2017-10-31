@@ -10,25 +10,10 @@ import (
 	"crypto/rand"
 	"encoding/binary"
 	"io"
-	"unsafe"
 
 	"go.artemisc.eu/godium"
+	"go.artemisc.eu/godium/internal"
 )
-
-var (
-	nativeOrder binary.ByteOrder
-)
-
-func init() {
-	var i uint64 = 0x1
-	bs := (*[8]byte)(unsafe.Pointer(&i))
-
-	if bs[0] == 0 {
-		nativeOrder = binary.BigEndian
-	} else {
-		nativeOrder = binary.LittleEndian
-	}
-}
 
 //
 type impl struct {
@@ -64,7 +49,7 @@ func (r impl) Buf(p []byte) (err error) {
 
 // UInt32
 func (r impl) UInt32() (v uint32) {
-	_ = binary.Read(r.Reader, nativeOrder, &v)
+	_ = binary.Read(r.Reader, internal.NativeEndian, &v)
 	return
 }
 
@@ -92,7 +77,7 @@ func (r impl) UniformUInt32(upper uint32) (v uint32) {
 
 // UInt64
 func (r impl) UInt64() (v uint64) {
-	_ = binary.Read(r.Reader, nativeOrder, &v)
+	binary.Read(r.Reader, internal.NativeEndian, &v)
 	return
 }
 

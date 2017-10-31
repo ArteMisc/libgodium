@@ -9,6 +9,7 @@ package aead
 import (
 	"go.artemisc.eu/godium"
 	"go.artemisc.eu/godium/core"
+	"go.artemisc.eu/godium/internal"
 )
 
 const (
@@ -29,7 +30,7 @@ type xchacha20poly1305ietf struct {
 // NewXChacha20Poly1305Ietf
 func NewXChacha20Poly1305Ietf(key []byte) (impl godium.AEAD) {
 	impl = &xchacha20poly1305ietf{
-		Key:                  core.Copy(key, XChacha20Poly1305Ietf_KeyBytes),
+		Key:                  internal.Copy(key, XChacha20Poly1305Ietf_KeyBytes),
 		chacha20poly1305ietf: new(chacha20poly1305ietf),
 	}
 	return

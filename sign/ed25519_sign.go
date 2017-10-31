@@ -7,11 +7,9 @@
 package sign
 
 import (
-	"unsafe"
-
 	"go.artemisc.eu/godium"
-	"go.artemisc.eu/godium/core"
 	"go.artemisc.eu/godium/hash"
+	"go.artemisc.eu/godium/internal"
 	"go.artemisc.eu/godium/sign/internal/edwards25519"
 )
 
@@ -35,7 +33,7 @@ type Ed25519Sign struct {
 
 // NewEd25519
 func NewEd25519(key godium.PrivateKey) (s godium.Sign) {
-	key = core.Copy(key, Ed25519_SecretKeyBytes)
+	key = internal.Copy(key, Ed25519_SecretKeyBytes)
 	s = &Ed25519Sign{
 		private: key,
 		public:  godium.PublicKey(key[Ed25519_SeedBytes:Ed25519_SecretKeyBytes]),
@@ -56,7 +54,7 @@ func KeyPairEd25519(random godium.Random) (s *Ed25519Sign, err error) {
 
 // KeyPairSeedEd25519
 func KeyPairSeedEd25519(seed []byte) (s *Ed25519Sign) {
-	seed = core.Copy(seed, SeedBytes)
+	seed = internal.Copy(seed, SeedBytes)
 	defer godium.Wipe(seed)
 
 	s = new(Ed25519Sign)
@@ -93,14 +91,14 @@ func (s *Ed25519Sign) Write(p []byte) (n int, err error) {
 
 func (s *Ed25519Sign) Sign(dst, unsigned []byte) (signed []byte) {
 	mlen := uint64(len(unsigned))
-	signed = core.AllocDst(dst, mlen+Ed25519_Bytes)
+	signed = internal.AllocDst(dst, mlen+Ed25519_Bytes)
 
 	if len(unsigned) == 0 {
 		signed = s.SignDetached(dst[:0], unsigned)
 		return
 	}
 
-	if uintptr(unsafe.Pointer(&dst[0])) != uintptr(unsafe.Pointer(&unsigned[Ed25519_Bytes])) {
+	if &dst[0] != &unsigned[Ed25519_Bytes] {
 		copy(dst, unsigned)
 	}
 
@@ -110,7 +108,7 @@ func (s *Ed25519Sign) Sign(dst, unsigned []byte) (signed []byte) {
 
 // SignDetached
 func (s *Ed25519Sign) SignDetached(dst, unsigned []byte) (signature []byte) {
-	signature = core.AllocDst(dst, Ed25519_Bytes)
+	signature = internal.AllocDst(dst, Ed25519_Bytes)
 	edSign := edwards25519.Sign(signature[:0], unsigned, s.private, false)
 	copy(signature, edSign)
 	return
@@ -129,7 +127,7 @@ func (s *Ed25519Sign) Final(dst []byte) (signature []byte) {
 
 // PublicKey
 func (s *Ed25519Sign) PublicKey() godium.PublicKey {
-	return core.Copy(s.public, Ed25519_PublicKeyBytes)
+	return internal.Copy(s.public, Ed25519_PublicKeyBytes)
 }
 
 func (s *Ed25519Sign) PublicKeyBytes() (c int) { return Ed25519_PublicKeyBytes }

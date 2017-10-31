@@ -9,6 +9,7 @@ package core
 import (
 	"unsafe"
 
+	"go.artemisc.eu/godium/internal"
 	"golang.org/x/crypto/salsa20/salsa"
 )
 
@@ -31,7 +32,7 @@ func HSalsa20(dst, nonce, key, sigma []byte) (out []byte) {
 		panic("invalid nonce size")
 	}
 
-	out = AllocDst(dst, HSalsa20_OutputBytes)
+	out = internal.AllocDst(dst, HSalsa20_OutputBytes)
 
 	salsa.HSalsa20(
 		(*[HSalsa20_OutputBytes]byte)(unsafe.Pointer(&out[0])),

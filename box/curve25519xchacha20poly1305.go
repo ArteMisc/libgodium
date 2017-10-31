@@ -9,6 +9,7 @@ package box
 import (
 	"go.artemisc.eu/godium"
 	"go.artemisc.eu/godium/core"
+	"go.artemisc.eu/godium/internal"
 	"go.artemisc.eu/godium/scalarmult"
 	"go.artemisc.eu/godium/secretbox"
 )
@@ -31,8 +32,8 @@ type Curve25519XChacha20Poly1305 struct {
 //
 func NewCurve25519XChacha20Poly1305(private, public []byte) (box godium.Box) {
 	box = &Curve25519XChacha20Poly1305{
-		PrivateKey: core.Copy(private, Curve25519XChacha20Poly1305_SecretKeyBytes),
-		PublicKey:  core.Copy(public, Curve25519XChacha20Poly1305_PublicKeyBytes),
+		PrivateKey: internal.Copy(private, Curve25519XChacha20Poly1305_SecretKeyBytes),
+		PublicKey:  internal.Copy(public, Curve25519XChacha20Poly1305_PublicKeyBytes),
 	}
 	return
 }

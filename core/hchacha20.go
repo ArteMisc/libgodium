@@ -10,6 +10,7 @@ import (
 	"unsafe"
 
 	"git.schwanenlied.me/yawning/chacha20.git"
+	"go.artemisc.eu/godium/internal"
 )
 
 const (
@@ -32,7 +33,7 @@ func HChacha20(dst, nonce, key, sigma []byte) (out []byte) {
 		panic("invalid nonce size")
 	}
 
-	out = AllocDst(dst, HChacha20_OutputBytes)
+	out = internal.AllocDst(dst, HChacha20_OutputBytes)
 
 	chacha20.HChaCha(key,
 		(*[HChacha20_InputBytes]byte)(unsafe.Pointer(&nonce[0])),

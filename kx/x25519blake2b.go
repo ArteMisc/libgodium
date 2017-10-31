@@ -8,8 +8,8 @@ package kx
 
 import (
 	"go.artemisc.eu/godium"
-	"go.artemisc.eu/godium/core"
 	"go.artemisc.eu/godium/generichash"
+	"go.artemisc.eu/godium/internal"
 	"go.artemisc.eu/godium/scalarmult"
 )
 
@@ -29,8 +29,8 @@ type X25519Blake2b struct {
 // NewX25519Blake2b
 func NewX25519Blake2b(public godium.PublicKey, private godium.PrivateKey) (kx *X25519Blake2b) {
 	kx = &X25519Blake2b{
-		public:  core.Copy(public, X25519Blake2b_PublicKeyBytes),
-		private: core.Copy(private, X25519Blake2b_SecretKeyBytes),
+		public:  internal.Copy(public, X25519Blake2b_PublicKeyBytes),
+		private: internal.Copy(private, X25519Blake2b_SecretKeyBytes),
 	}
 	return
 }
@@ -66,8 +66,8 @@ func (kx *X25519Blake2b) ServerSessionKeys(dstRx, dstTx []byte, remote godium.Pu
 	defer godium.Wipe(q[:])
 	defer godium.Wipe(keys[:])
 
-	rx = core.AllocDst(dstRx, X25519Blake2b_SessionKeyBytes)
-	tx = core.AllocDst(dstTx, X25519Blake2b_SessionKeyBytes)
+	rx = internal.AllocDst(dstRx, X25519Blake2b_SessionKeyBytes)
+	tx = internal.AllocDst(dstTx, X25519Blake2b_SessionKeyBytes)
 
 	_, err = scalarmult.Curve25519(q[:0], kx.private, remote)
 	if err != nil {
@@ -94,8 +94,8 @@ func (kx *X25519Blake2b) ClientSessionKeys(dstRx, dstTx []byte, remote godium.Pu
 	defer godium.Wipe(q[:])
 	defer godium.Wipe(keys[:])
 
-	rx = core.AllocDst(dstRx, X25519Blake2b_SessionKeyBytes)
-	tx = core.AllocDst(dstTx, X25519Blake2b_SessionKeyBytes)
+	rx = internal.AllocDst(dstRx, X25519Blake2b_SessionKeyBytes)
+	tx = internal.AllocDst(dstTx, X25519Blake2b_SessionKeyBytes)
 
 	_, err = scalarmult.Curve25519(q[:0], kx.private, remote)
 	if err != nil {
@@ -116,7 +116,7 @@ func (kx *X25519Blake2b) ClientSessionKeys(dstRx, dstTx []byte, remote godium.Pu
 
 // PublicKey
 func (kx *X25519Blake2b) PublicKey() godium.PublicKey {
-	return core.Copy(kx.public, X25519Blake2b_PublicKeyBytes)
+	return internal.Copy(kx.public, X25519Blake2b_PublicKeyBytes)
 }
 
 func (kx *X25519Blake2b) PublicKeyBytes() int  { return X25519Blake2b_PublicKeyBytes }

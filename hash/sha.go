@@ -12,9 +12,9 @@ package hash // import "go.artemisc.eu/godium/hash"
 import (
 	"crypto/sha256"
 	"crypto/sha512"
+	"hash"
 
 	"go.artemisc.eu/godium"
-	"hash"
 )
 
 const (
