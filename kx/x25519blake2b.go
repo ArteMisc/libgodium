@@ -22,15 +22,15 @@ const (
 
 //
 type X25519Blake2b struct {
-	public  godium.PublicKey
-	private godium.PrivateKey
+	godium.PrivateKey
+	public godium.PublicKey
 }
 
 // NewX25519Blake2b
 func NewX25519Blake2b(public godium.PublicKey, private godium.PrivateKey) (kx *X25519Blake2b) {
 	kx = &X25519Blake2b{
-		public:  internal.Copy(public, X25519Blake2b_PublicKeyBytes),
-		private: internal.Copy(private, X25519Blake2b_SecretKeyBytes),
+		public:     internal.Copy(public, X25519Blake2b_PublicKeyBytes),
+		PrivateKey: internal.Copy(private, X25519Blake2b_SecretKeyBytes),
 	}
 	return
 }
@@ -46,15 +46,15 @@ func KeyGenX25519Blake2b(random godium.Random) (kx *X25519Blake2b, err error) {
 	scalarmult.Curve25519Base(public[:0], private)
 
 	kx = &X25519Blake2b{
-		public:  public,
-		private: private,
+		public:     public,
+		PrivateKey: private,
 	}
 	return
 }
 
 // Wipe
 func (kx *X25519Blake2b) Wipe() {
-	godium.Wipe(kx.private)
+	godium.Wipe(kx.PrivateKey)
 	godium.Wipe(kx.public)
 }
 
@@ -69,7 +69,7 @@ func (kx *X25519Blake2b) ServerSessionKeys(dstRx, dstTx []byte, remote godium.Pu
 	rx = internal.AllocDst(dstRx, X25519Blake2b_SessionKeyBytes)
 	tx = internal.AllocDst(dstTx, X25519Blake2b_SessionKeyBytes)
 
-	_, err = scalarmult.Curve25519(q[:0], kx.private, remote)
+	_, err = scalarmult.Curve25519(q[:0], kx.PrivateKey, remote)
 	if err != nil {
 		return
 	}
@@ -97,7 +97,7 @@ func (kx *X25519Blake2b) ClientSessionKeys(dstRx, dstTx []byte, remote godium.Pu
 	rx = internal.AllocDst(dstRx, X25519Blake2b_SessionKeyBytes)
 	tx = internal.AllocDst(dstTx, X25519Blake2b_SessionKeyBytes)
 
-	_, err = scalarmult.Curve25519(q[:0], kx.private, remote)
+	_, err = scalarmult.Curve25519(q[:0], kx.PrivateKey, remote)
 	if err != nil {
 		return
 	}
