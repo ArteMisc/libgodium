@@ -22,7 +22,8 @@ const (
 	signatureSize  = 64
 )
 
-var dom2prefix [32 + 2]byte = [...]byte{
+// dom2prefix holds 32+2 bytes
+var dom2prefix = [...]byte{
 	'S', 'i', 'g', 'E', 'd', '2', '5', '5', '1', '9', ' ',
 	'n', 'o', ' ',
 	'E', 'd', '2', '5', '5', '1', '9', ' ',
