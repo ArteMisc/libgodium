@@ -98,7 +98,7 @@ func NewBlake2bSaltPersonal(size uint32, key, personal, salt []byte) (b *Blake2b
 	if salt != nil {
 		c.Salt = internal.Copy(salt, Blake2b_SaltBytes)
 	}
-	h, _ := blake2b.New(&blake2b.Config{})
+	h, _ := blake2b.New(c)
 
 	b = &Blake2b{
 		Hash: h,
