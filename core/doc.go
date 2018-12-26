@@ -6,7 +6,7 @@
 
 /*
 
-Package Core implements some of the core algorithms of libsodium.
+Package core implements some of the core algorithms of libsodium.
 
 */
 package core // import "go.artemisc.eu/godium/core"

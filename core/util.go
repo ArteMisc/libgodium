@@ -6,6 +6,10 @@
 
 package core
 
+import (
+	"crypto/subtle"
+)
+
 // IsZero returns true if all bytes in buf are 0.
 func IsZero(buf []byte) (zero bool) {
 	var d uint8
@@ -26,4 +30,9 @@ func Increment(buf []byte) {
 		buf[i] = uint8(c)
 		c >>= 8
 	}
+}
+
+// Equals TODO
+func Equals(a, b []byte) bool {
+	return subtle.ConstantTimeCompare(a, b) == 1
 }

@@ -39,12 +39,13 @@ const (
 // internal use.
 var scryptStrPrefix = []byte(Scrypt_StrPrefix)
 
-//
+// Scrypt implements godium.PwHash, based on the Scrypt password hashing
+// function.
 type Scrypt struct {
 	pw []byte
 }
 
-// NewScrypt
+// NewScrypt creates a new instance of Scrypt with pw as the given password.
 func NewScrypt(pw []byte) (ph godium.PwHash) {
 	ph = &Scrypt{
 		pw: internal.Copy(pw, uint64(len(pw))),
@@ -52,9 +53,14 @@ func NewScrypt(pw []byte) (ph godium.PwHash) {
 	return
 }
 
+// Wipe implements godium.PwHash.
+func (pw *Scrypt) Wipe() {
+	godium.Wipe(pw.pw)
+}
+
 // pickParams converts the provided opslimit and memlimit values into Scrypt's
 // internally used n, p and r values.
-func (pw *Scrypt) pickParams(opslimit, memlimit uint64) (N_log2, p, r uint64) {
+func (pw *Scrypt) pickParams(opslimit, memlimit uint64) (NLog2, p, r uint64) {
 	var maxN, maxrp uint64
 
 	if opslimit < 32768 {
@@ -66,8 +72,8 @@ func (pw *Scrypt) pickParams(opslimit, memlimit uint64) (N_log2, p, r uint64) {
 	if opslimit < memlimit/32 {
 		p = 1
 		maxN = opslimit / (r * 4)
-		for N_log2 = 1; N_log2 < 63; N_log2 += 1 {
-			if (1 << N_log2) > (maxN / 2) {
+		for NLog2 = 1; NLog2 < 63; NLog2++ {
+			if (1 << NLog2) > (maxN / 2) {
 				break
 			}
 		}
@@ -76,13 +82,13 @@ func (pw *Scrypt) pickParams(opslimit, memlimit uint64) (N_log2, p, r uint64) {
 	}
 
 	maxN = memlimit / (r * 128)
-	for N_log2 = 1; N_log2 < 63; N_log2 += 1 {
-		if (1 << N_log2) > (maxN / 2) {
+	for NLog2 = 1; NLog2 < 63; NLog2++ {
+		if (1 << NLog2) > (maxN / 2) {
 			break
 		}
 	}
 
-	maxrp = (opslimit / 4) / (1 << N_log2)
+	maxrp = (opslimit / 4) / (1 << NLog2)
 	/* LCOV_EXCL_START */
 	if maxrp > 0x3fffffff {
 		maxrp = 0x3fffffff
@@ -158,5 +164,5 @@ func (pw *Scrypt) OpsLimitInteractive() int { return Scrypt_OpsLimitInteractive 
 func (pw *Scrypt) OpsLimitModerate() int    { return Scrypt_OpsLimitSensitive }
 func (pw *Scrypt) OpsLimitSensitive() int   { return Scrypt_OpsLimitSensitive }
 func (pw *Scrypt) SaltBytes() int           { return Scrypt_SaltBytes }
-func (pw *Scrypt) StrBytes() int            { return StrBytes }
+func (pw *Scrypt) StrBytes() int            { return Scrypt_StrBytes }
 func (pw *Scrypt) StrPrefix() string        { return Scrypt_StrPrefix }

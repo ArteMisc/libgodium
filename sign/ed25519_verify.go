@@ -12,7 +12,7 @@ import (
 	"go.artemisc.eu/godium"
 	"go.artemisc.eu/godium/hash"
 	"go.artemisc.eu/godium/internal"
-	"go.artemisc.eu/godium/sign/internal/edwards25519"
+	"go.artemisc.eu/godium/internal/edwards25519"
 )
 
 type Ed25519SignVerifier struct {

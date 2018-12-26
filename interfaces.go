@@ -40,6 +40,8 @@ var (
 
 // Wipe will override the contents of the buffer p with 0's.
 func Wipe(p []byte) {
+	// FIXME(eddy): this code gets optimized by the compiler, and should be
+	// replaced.
 	for i := range p {
 		p[i] = 0x00
 	}
@@ -111,7 +113,7 @@ type Box interface {
 
 // GenericHash
 type GenericHash interface {
-	hash.Hash
+	Hash
 	Wiper
 
 	BytesMin() (c int)
@@ -173,6 +175,9 @@ type OneTimeAuth interface {
 // algorithm. These algorithms are meant to be hard on memory and slow to
 // compute.
 type PwHash interface {
+	// PwHash implements the Wiper interface.
+	Wiper
+
 	Hash(dst, salt []byte, out, opslimit, memlimit uint64) (h []byte, err error)
 
 	Str(dst []byte, opslimit, memlimit uint64) (h []byte, err error)
