@@ -71,7 +71,7 @@ func (s *chacha20Impl) Wipe() {
 }
 
 func (s *chacha20Impl) ReKey(key, nonce []byte) {
-	s.ReKey(key, nonce)
+	s.Cipher.ReKey(key, nonce)
 	s.key = key[:len(s.key)]
 	s.nonce = nonce[:len(s.nonce)]
 }
