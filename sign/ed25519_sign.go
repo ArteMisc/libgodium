@@ -57,20 +57,26 @@ func KeyPairSeedEd25519(seed []byte) (s *Ed25519Sign) {
 	seed = internal.Copy(seed, SeedBytes)
 	defer godium.Wipe(seed)
 
-	s = new(Ed25519Sign)
-	s.private = make([]byte, Ed25519_SecretKeyBytes)
-	s.public = godium.PublicKey(s.private[Ed25519_SeedBytes:])
-
-	var hBytes [32]byte
-	hash.SumSha512(hBytes[:0], s.private[:Ed25519_SeedBytes])
-	hBytes[0] &= 248
-	hBytes[31] &= 127
-	hBytes[31] |= 64
+	var digest [32]byte
+	hash.SumSha512(digest[:0], seed[:Ed25519_SeedBytes])
+	digest[0] &= 248
+	digest[31] &= 127
+	digest[31] |= 64
 
 	var A edwards25519.ExtendedGroupElement
+	var hBytes [32]byte
+	copy(hBytes[:], digest[:])
 	edwards25519.GeScalarMultBase(&A, &hBytes)
-	A.ToBytes(&hBytes)
-	copy(s.public[:], hBytes[:])
+	var publicKeyBytes [32]byte
+	A.ToBytes(&publicKeyBytes)
+
+	// initialize the struct
+	s = new(Ed25519Sign)
+	s.private = make([]byte, Ed25519_SecretKeyBytes)
+	s.public = make([]byte, Ed25519_PublicKeyBytes)
+	copy(s.private[:Ed25519_SeedBytes], seed[:Ed25519_SeedBytes])
+	copy(s.private[Ed25519_SeedBytes:], publicKeyBytes[:])
+	copy(s.public, publicKeyBytes[:])
 
 	return
 }
