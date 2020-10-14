@@ -64,6 +64,7 @@ type XChacha20Poly1305 struct {
 // NewXChacha20Poly1305
 func NewXChacha20Poly1305() (s *XChacha20Poly1305) {
 	s = new(XChacha20Poly1305)
+	s.poly = new(onetimeauth.Poly1305)
 	return
 }
 
